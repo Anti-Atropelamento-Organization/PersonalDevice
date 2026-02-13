@@ -21,7 +21,7 @@ void VehicleDevice::buildSafetyPacket() {
 
 void VehicleDevice::buildMonitoringPacket() {
     pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude,
-                          batteryLevel, last5positions, last5events, status, monitoringPacket);
+                          batteryLevel, last5positions, last5events, status, satelites, deviceHdop, nearbyVehicles, monitoringPacket);
 }
 
 void VehicleDevice::onReceiveDecoded() {
