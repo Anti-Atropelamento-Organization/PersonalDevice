@@ -19,7 +19,8 @@ PersonalDevice personal;
 mainFunctions MF;
 
 
-SimpleTimer st(3000);
+SimpleTimer st_safety(30000);
+SimpleTimer st_monitoring(3000);
 SimpleTimer alertTimer(3000);
 
 unsigned long jitterTargetTime = 0;
@@ -43,9 +44,9 @@ void setup() {
 
 void loop() {
   MF.SetPersonalConst(personal);
-  MF.ReceivePacketDevice(personal, st, jitterTargetTime, waitingToSend, hasTarget);
-  MF.SendTime(personal, st, hasTarget, level, lastLevel);
-  MF.SendPacketDevice(personal, st, jitterTargetTime, waitingToSend);
+  MF.ReceivePacketDevice(personal, st_safety, jitterTargetTime, waitingToSend, hasTarget);
+  MF.SendTime(personal, st_monitoring, hasTarget, level, lastLevel);
+  MF.SendPacketDevice(personal, st_safety, st_monitoring, jitterTargetTime);
   if (alertTimer.isReady()) {
     MF.ActiveAlert(personal);
     alertTimer.reset();

@@ -14,6 +14,12 @@
 
 static const int MAX_VEHICLES = 10;
 
+struct ActiveVehicles {
+uint8_t id;
+double distance;
+uint32_t lastSeenMs;
+};
+
 // --- ESTRUTURAS COMPACTADAS (PACKED) ---
 
 struct __attribute__((packed)) SafetyPayload {
@@ -91,12 +97,6 @@ struct AdvertiseData {
     uint8_t packetID;
     uint8_t ID;
     uint8_t deviceID;
-};
-
-struct ActiveVehicles {
-uint8_t id;
-double distance;
-uint32_t lastSeenMs;
 };
 
 class packet {
