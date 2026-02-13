@@ -9,7 +9,7 @@ void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, uns
     uint8_t srcId = device.getReceivedID();
     double srcLat = device.getReceivedLat();
     double srcLng = device.getReceivedLng();
-
+   
     this->ProcessData((PersonalDevice&) device, srcId, srcLat, srcLng);
     hasTarget = true;
   }else {
@@ -29,24 +29,57 @@ static inline bool hasFixSimplePersonal(PersonalDevice& personal) {
   return personal.hasLocation() && personal.getSatValid() && personal.getHdop() <= 10.0;
 }
 
-void mainFunctions::SendPacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend) {
-  if (waitingToSend && millis() >= jitterTargetTime) {
-    if (!device.isChannelBusy(SAFETY_CHANNEL) && hasFixSimplePersonal((PersonalDevice&) device)) {
-    device.sendSafety();
-    Serial.println();
-    Serial.println("###########################");
-    Serial.println("Pacote enviado");
-    Serial.println("Device ID: " + String(device.getID()));
-    Serial.println("Device Latitude: " + String(device.getLatitude(), 6));
-    Serial.println("Device Longitude: " + String(device.getLongitude(), 6));
-    Serial.println("Satellites: " + String(device.getSatValue()));
-    Serial.println("Hdop: " + String(device.getHdop()));
-    Serial.println("###########################");
-    Serial.println();
+void mainFunctions::SendPacketDevice(DeviceBase& device, SimpleTimer& st_safety, SimpleTimer& st_monitoring, unsigned long& jitterTargetTime) {
+    
+    unsigned long now = millis();
+    bool safetyPronto = st_safety.isReady();
+    bool monitoringPronto = st_monitoring.isReady();
 
-    waitingToSend = false; 
+    // Se nenhum timer disparou e não estamos em período de jitter (atraso por canal ocupado), sai da função
+    if (!safetyPronto && !monitoringPronto && now < jitterTargetTime) {
+        return;
     }
-  }
+
+    // Se algum estiver pronto, mas o canal estiver ocupado:
+    // if (device.isChannelBusy(SAFETY_CHANNEL)) {
+    //     // Aplica o atraso aleatório e não reseta os timers (para tentarem de novo no próximo loop)
+    //     if (now >= jitterTargetTime) { 
+    //         jitterTargetTime = now + random(100, 1000); 
+    //         Serial.println("Canal ocupado. Reagendando tentativa...");
+    //     }
+    //     return; 
+    // }
+    // Se chegou aqui, o canal está livre. Agora checa o GPS:
+        if (hasFixSimplePersonal((PersonalDevice&) device)|| true) {
+        
+        // Executa o envio baseado no timer que disparou
+        if (safetyPronto) {
+          if(device.isChannelBusy(SAFETY_CHANNEL)) {
+              Serial.println("Canal de segurança ocupado no momento do envio. Reagendando...");
+              jitterTargetTime = now + random(100, 1000); 
+              return;
+            }
+            device.sendSafety();
+            st_safety.reset(); // Só reseta após enviar com sucesso
+            Serial.println(">>> Enviado: SAFETY");
+              
+        } 
+        else if (monitoringPronto) {
+          if(device.isChannelBusy(MONITORING_CHANNEL)) {
+              Serial.println("Canal de monitoramento ocupado no momento do envio. Reagendando...");
+              jitterTargetTime = now + random(100, 1000); 
+              return;
+            }
+            device.sendMonitoring();
+            st_monitoring.reset();
+            Serial.println(">>> Enviado: MONITORING");
+
+        }
+
+        
+        // Reseta o jitterTargetTime para o presente, já que o envio foi concluído
+        jitterTargetTime = 0;
+    }
 }
 
 /* ##########################
@@ -64,6 +97,8 @@ void mainFunctions::SetVehicleConst(VehicleDevice& vehicle) {
   bool satValid = vehicle.getSatValid();
   uint32_t sats = satValid ? vehicle.getSatValue() : 0;
   vehicle.setHdop();
+  vehicle.setSatValue();
+  
   
   if (fixOk) {
     vehicle.setLatitude();

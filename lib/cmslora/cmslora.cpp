@@ -130,3 +130,8 @@ bool CMSLoRa::isChannelBusy()
   }
   return true;
 }
+
+void CMSLoRa::StartReceive()
+{
+  radio.startReceive();
+}

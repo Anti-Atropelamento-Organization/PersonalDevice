@@ -10,7 +10,7 @@ void PersonalDevice::buildSafetyPacket() {
 
 void PersonalDevice::buildMonitoringPacket() {
     pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude,
-                          batteryLevel, last5positions, last5events, status, monitoringPacket);
+                          batteryLevel, last5positions, last5events, status, satelites, deviceHdop, monitoringPacket);
 }
 
 void PersonalDevice::onReceiveDecoded() {

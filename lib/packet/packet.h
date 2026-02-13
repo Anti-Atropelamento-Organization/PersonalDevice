@@ -12,6 +12,8 @@
 #define ALERT_ADVERTISE    0xA1 
 #define ALERT_INTERLOCK    0xA2 
 
+static const int MAX_VEHICLES = 10;
+
 // --- ESTRUTURAS COMPACTADAS (PACKED) ---
 
 struct __attribute__((packed)) SafetyPayload {
@@ -39,6 +41,9 @@ struct __attribute__((packed)) MonitoringPayload {
     int32_t last5positions[5][2];
     uint8_t last5events[5];
     uint8_t status;
+    uint8_t satellites;
+    double hdop;
+    ActiveVehicles nearbyVehicles[MAX_VEHICLES];
 };
 
 // !!! ADICIONE ISSO AQUI !!!
@@ -77,12 +82,21 @@ struct MonitoringData {
     int32_t last5positions[5][2];
     uint8_t last5events[5];
     uint8_t status;
+    uint8_t satellites;
+    double hdop;
+    ActiveVehicles nearbyVehicles[MAX_VEHICLES];
 };
 
 struct AdvertiseData {
     uint8_t packetID;
     uint8_t ID;
     uint8_t deviceID;
+};
+
+struct ActiveVehicles {
+uint8_t id;
+double distance;
+uint32_t lastSeenMs;
 };
 
 class packet {
@@ -99,7 +113,7 @@ public:
 
     // Construtores (TX)
     void safetyPacket(uint8_t ID, uint8_t deviceType, double latitude,  double longitude, uint8_t *returnPacket, double speed, double course, double hdop);
-    void monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t *returnPacket);
+    void monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t satellites, double hdop, ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket);
     void advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket);
 
     // Decodificação (RX)
@@ -116,6 +130,12 @@ public:
     float getLat();
     float getLng();
     float getHdop();
+    uint8_t getBatteryLevel();
+    uint8_t getStatus();
+    uint8_t getSatellites();
+    void getLast5Positions(int32_t (&positions)[5][2]);
+    void getLast5Events(uint8_t (&events)[5]);
+
 };
 
 #endif

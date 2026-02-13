@@ -14,11 +14,7 @@ public:
 
     int isValidSend(double minDistance);
 
-    struct ActiveVehicles {
-        uint8_t id;
-        double distance;
-        uint32_t lastSeenMs;
-    };
+
 
     void updateVehicleList(uint8_t id, double dist);
     void cleanOldVehicles();
@@ -32,7 +28,6 @@ protected:
 private:
     float minDistance = 100.0f;
     uint32_t lastMinResetMs = 0;
-    static const int MAX_VEHICLES = 10;
     ActiveVehicles nearbyVehicles[MAX_VEHICLES];
 };
 

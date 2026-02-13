@@ -51,6 +51,7 @@ public:
     int getSatValue();
 
     bool getSatValid();
+    void setSatValue();
 
     double getHdop() const;
     void setHdop();
@@ -84,6 +85,7 @@ protected:
     uint8_t deviceType = 0; 
     int32_t last5positions[5][2];
     uint8_t last5events[5];
+    uint8_t satelites = 0;
 
     uint8_t safetyPacket[SAFETY_PACKET_SIZE];
     uint8_t monitoringPacket[MONITORING_PACKET_SIZE];

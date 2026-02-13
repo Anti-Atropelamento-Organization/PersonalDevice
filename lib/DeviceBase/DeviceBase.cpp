@@ -38,8 +38,14 @@ double DeviceBase::getCourse() const { return deviceCourse; }
 void DeviceBase::setCourse() { deviceCourse = gps.course.deg(); }
 
 int DeviceBase::getSatValue() {
-    return gps.satellites.value();
+
+    return satelites;
 }
+
+void DeviceBase::setSatValue() {
+    satelites = gps.satellites.value();
+}
+
 
 bool DeviceBase::getSatValid() {
     return gps.satellites.isValid();

@@ -36,12 +36,14 @@ class CMSLoRa {
   *         Retorna FALSE caso contrário
   * 
  */
-    bool receiveData(unsigned char* packetBuffer, size_t bufferSize, unsigned long timeOut = 10000);
+    
+ bool receiveData(unsigned char* packetBuffer, size_t bufferSize, unsigned long timeOut = 10000);
+ 
+void StartReceive();
 /**
   * @brief Para o recebimento de dados
   *   
  */
-
     void StopReceive();
   /**
   * @brief Define o Spreading Factor da transmissão
@@ -74,22 +76,22 @@ class CMSLoRa {
   private:
 
   // para o t-beam
-    static constexpr uint8_t LORA_SCK    = 12;
-    static constexpr uint8_t LORA_MISO   = 13;
-    static constexpr uint8_t LORA_MOSI   = 11;
-    static constexpr uint8_t LORA_CS     = 10;
-    static constexpr uint8_t LORA_BUSY   = 4;
-    static constexpr uint8_t LORA_DIO1   = 1;
-    static constexpr uint8_t LORA_RESET  = 5;
+    // static constexpr uint8_t LORA_SCK    = 12;
+    // static constexpr uint8_t LORA_MISO   = 13;
+    // static constexpr uint8_t LORA_MOSI   = 11;
+    // static constexpr uint8_t LORA_CS     = 10;
+    // static constexpr uint8_t LORA_BUSY   = 4;
+    // static constexpr uint8_t LORA_DIO1   = 1;
+    // static constexpr uint8_t LORA_RESET  = 5;
 
   // para o heltec
-    /* static constexpr uint8_t LORA_SCK    = 9;
+    static constexpr uint8_t LORA_SCK    = 9;
     static constexpr uint8_t LORA_MISO   = 11;
     static constexpr uint8_t LORA_MOSI   = 10;
     static constexpr uint8_t LORA_CS     = 8;
     static constexpr uint8_t LORA_BUSY   = 13;
     static constexpr uint8_t LORA_DIO1   = 14;
-    static constexpr uint8_t LORA_RESET  = 12; */
+    static constexpr uint8_t LORA_RESET  = 12;
 
     // static constexpr uint8_t LORA_SCK    = 10;
     // static constexpr uint8_t LORA_MISO   = 6;
