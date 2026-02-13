@@ -96,6 +96,8 @@ protected:
     double deviceHdop = 0.0;
     double deviceRadius[3] = {0.0, 0.0, 0.0};
 
+    ActiveVehicles nearbyVehicles[MAX_VEHICLES];
+
     packet pckt;
     CMSLoRa lora;
     TinyGPSPlus gps;

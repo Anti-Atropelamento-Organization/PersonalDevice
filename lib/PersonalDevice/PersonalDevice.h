@@ -28,7 +28,6 @@ protected:
 private:
     float minDistance = 100.0f;
     uint32_t lastMinResetMs = 0;
-    ActiveVehicles nearbyVehicles[MAX_VEHICLES];
 };
 
 #endif
