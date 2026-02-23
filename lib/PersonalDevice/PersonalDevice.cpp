@@ -9,11 +9,13 @@ void PersonalDevice::buildSafetyPacket() {
 }
 
 void PersonalDevice::buildMonitoringPacket() {
-    pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude, batteryLevel, status, satelites, deviceHdop, monitoringPacket);
+  monitoringRandomID = (uint16_t)random(0, 65536);
+  pckt.monitoringPacket(deviceID, deviceType, monitoringRandomID, deviceLatitude, deviceLongitude, batteryLevel, status, satelites, deviceHdop, monitoringPacket);
 }
 
 void PersonalDevice::buildLogPacket() {
-    pckt.logPacket(deviceID, deviceType, last5positions, last5events, nearbyVehicles, logPacket);
+  LogRandomID = (uint16_t)random(0, 65536);
+  pckt.logPacket(deviceID, LogRandomID, deviceType, last5positions, last5events, nearbyVehicles, logPacket);
 }
 
 void PersonalDevice::onReceiveDecoded() {

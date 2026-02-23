@@ -186,3 +186,17 @@ uint8_t DeviceBase::getTypePacket(){
 uint16_t DeviceBase::getRandomPacketID() {
     return pckt.getAckRandomID();
 }
+
+uint16_t DeviceBase::getMyRandomLogID(){
+    return this->LogRandomID;
+}
+
+uint16_t DeviceBase::getMyRandomMonitoringID(){
+    return this->monitoringRandomID;
+}
+
+void DeviceBase::cleanEvents()
+{
+ memset(last5events, 0, sizeof(last5events));
+ 
+}

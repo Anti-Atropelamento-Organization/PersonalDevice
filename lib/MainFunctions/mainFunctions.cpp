@@ -4,9 +4,6 @@
 DEVICE MAIN FUNCTIONS
 ########################## */
 
-uint16_t currentMonitoringID = 0;
-uint16_t currentLogID = 0;
-
 void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget, bool& ackMonitoring, bool& ackLog) {
   if (device.receive()){
     uint8_t lastPacketID = device.getTypePacket();
@@ -29,16 +26,16 @@ void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, uns
       waitingToSend = true;
     }else if(lastPacketID == ACK_PACKET){
       uint16_t receivedAckID = device.getRandomPacketID(); 
-      if (receivedAckID == currentMonitoringID) {
+      if (receivedAckID == device.getMyRandomMonitoringID()) {
           ackMonitoring = true;
           Serial.println("ACK Monitoring Recebido!");
       }
       
-      if (receivedAckID == currentLogID) {
+      if (receivedAckID == device.getMyRandomLogID()) {
           ackLog = true;
           Serial.println("ACK Log Recebido!");
+          device.cleanEvents();
       }
-
     }
   }
     
@@ -90,20 +87,15 @@ void mainFunctions::SendPacketLog(DeviceBase& device, SimpleTimer& st_monitoring
       return;
     }
   if (!ackMonitoring && !ackLog){
-    currentMonitoringID = (uint16_t)random(0, 65536);
-    currentLogID = (uint16_t)random(0, 65536);
     device.sendMonitoring();
     device.sendLog();
   }else if(ackMonitoring && !ackLog){
-    currentLogID = (uint16_t)random(0, 65536);
     device.sendLog();
   }else if(!ackMonitoring && ackLog){
-    currentMonitoringID = (uint16_t)random(0, 65536);
     device.sendMonitoring();
   }
-
   
-  Serial.println(">>> Enviado: MONITORING");
+  // Serial.println(">>> Enviado: MONITORING");
 }
 
 /* ##########################

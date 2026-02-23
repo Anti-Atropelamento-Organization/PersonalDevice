@@ -24,6 +24,7 @@ SimpleTimer st_monitoring(3000);
 SimpleTimer alertTimer(3000);
 SimpleTimer timerbloqueante(5000); 
 
+
 bool timerAck = false;
 
 unsigned long jitterTargetTimeSafety = 0;
@@ -64,14 +65,15 @@ void loop() {
   if(st_monitoring.isReady()){
     if((!ackMonitoring || !ackLog) && timerAck == false){
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
-      timerbloqueante.reset();
       timerAck = true;
-    }else if(timerbloqueante.alreadyGoal(2000)){
+    }else if(timerbloqueante.alreadyGoal(2000) && timerAck){
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
-    }else{
+    }else if(timerbloqueante.isReady() && timerAck){
+      timerAck = false;
       st_monitoring.reset();
     }
   }
+  
 
 
 

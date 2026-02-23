@@ -48,6 +48,7 @@ public:
     float calculateDistance(double targetLat, double targetLng);
 
     void sendAlert(uint8_t alertType, uint8_t targetID);
+    void cleanEvents();
 
     int getSatValue();
 
@@ -69,7 +70,11 @@ public:
 
     uint8_t getTypePacket();
 
-     uint16_t getRandomPacketID();
+    uint16_t getRandomPacketID();
+
+    uint16_t getMyRandomMonitoringID();
+
+    uint16_t getMyRandomLogID();
 
 protected:
 
@@ -110,6 +115,9 @@ protected:
     TinyGPSPlus gps;
 
     uint8_t lastPacketID;
+
+    uint16_t monitoringRandomID;
+    uint16_t LogRandomID;
 };
 
 #endif
