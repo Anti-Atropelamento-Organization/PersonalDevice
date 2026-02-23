@@ -8,6 +8,7 @@
 #define MONITORING_PACKET  0x02
 #define ADVERTISE_PACKET   0x03
 #define LOG_PACKET         0x04
+#define ACK_PACKET         0x05
 
 #define VEHICLE_DEVICE     0x01
 #define PERSONAL_DEVICE    0x02
@@ -26,6 +27,12 @@ uint32_t lastSeenMs;
 
 // --- ESTRUTURAS COMPACTADAS (PACKED) ---
 
+struct __attribute__((packed)) AckPayload {
+    uint8_t ID; // ID do destinatário
+    uint16_t RandomID;
+};
+
+#define ACK_PACKET_SIZE sizeof(AckPayload)
 struct __attribute__((packed)) SafetyPayload {
     uint8_t packetType;
     uint8_t id;
@@ -117,6 +124,11 @@ struct AdvertiseData {
     uint8_t deviceID;
 };
 
+struct AckData {
+    uint8_t ID;
+    uint16_t RandomID;
+};
+
 class packet {
 private:
     uint8_t _lastDecodedPacketType; 
@@ -134,6 +146,7 @@ public:
     void monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket);
     void advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket);
     void logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket);
+    void ackPacket(uint8_t ID, uint16_t RandomID, uint8_t *returnPacket);
 
     // Decodificação (RX)
     uint8_t decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType);
@@ -145,7 +158,7 @@ public:
     float getSpeed();
     float getCourse();
     uint8_t getAdvertiseID();
-
+    uint16_t getAckRandomID();
     float getLat();
     float getLng();
     float getHdop();
