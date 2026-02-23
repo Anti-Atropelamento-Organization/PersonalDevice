@@ -215,6 +215,9 @@ uint8_t packet::getDeviceID() {
     else if(_lastDecodedPacketType == LOG_PACKET) {
         return logPacketData.ID;
     }
+    else if(_lastDecodedPacketType == ACK_PACKET) {
+        return ackData.ID;
+    }
     return 0; // Se não for nenhum conhecido
 }
 uint16_t packet::getAckRandomID() {
