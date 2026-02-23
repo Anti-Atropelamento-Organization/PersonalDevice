@@ -22,12 +22,22 @@ mainFunctions MF;
 SimpleTimer st_safety(30000);
 SimpleTimer st_monitoring(3000);
 SimpleTimer alertTimer(3000);
+SimpleTimer timerbloqueante(5000); 
 
-unsigned long jitterTargetTime = 0;
+bool timerAck = false;
+
+unsigned long jitterTargetTimeSafety = 0;
+unsigned long jitterTargetTimeMonitoring = 0;
 bool waitingToSend = false;
 bool hasTarget = false;
 int level = 3;
 static int lastLevel = -1;
+
+bool ackMonitoring = false;
+bool ackLog = false;
+
+uint16_t randomMonitoring = 0;
+uint16_t randomLog = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -44,9 +54,27 @@ void setup() {
 
 void loop() {
   MF.SetPersonalConst(personal);
-  MF.ReceivePacketDevice(personal, st_safety, jitterTargetTime, waitingToSend, hasTarget);
+  MF.ReceivePacketDevice(personal, st_safety, jitterTargetTimeSafety, waitingToSend, hasTarget, ackMonitoring, ackLog);
   MF.SendTime(personal, st_monitoring, hasTarget, level, lastLevel);
-  MF.SendPacketDevice(personal, st_safety, st_monitoring, jitterTargetTime);
+
+  if(st_safety.isReady()){
+    MF.SendPacketSafety(personal, st_safety, jitterTargetTimeSafety);
+  }
+
+  if(st_monitoring.isReady()){
+    if((!ackMonitoring || !ackLog) && timerAck == false){
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
+      timerbloqueante.reset();
+      timerAck = true;
+    }else if(timerbloqueante.alreadyGoal(2000)){
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
+    }else{
+      st_monitoring.reset();
+    }
+  }
+
+
+
   if (alertTimer.isReady()) {
     MF.ActiveAlert(personal);
     alertTimer.reset();

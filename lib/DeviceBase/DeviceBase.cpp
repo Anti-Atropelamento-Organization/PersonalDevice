@@ -78,9 +78,9 @@ bool DeviceBase::receive() {
 
     if (lora.receiveData(receivedPacket, 255, 100)) { 
         
-        uint8_t result = pckt.decodePacket(receivedPacket, this->deviceType);
+        lastPacketID = pckt.decodePacket(receivedPacket, this->deviceType);
         
-        if (result == 0) {
+        if (lastPacketID == 0) {
             return false;
         }
 
@@ -177,4 +177,12 @@ double DeviceBase::getReceivedLng() {
 
 uint8_t DeviceBase::getReceivedID() {
     return pckt.getDeviceID();
+}
+
+uint8_t DeviceBase::getTypePacket(){
+    return lastPacketID;
+}
+
+uint16_t DeviceBase::getRandomPacketID() {
+    return pckt.getAckRandomID();
 }

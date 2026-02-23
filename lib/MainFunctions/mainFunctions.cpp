@@ -4,41 +4,55 @@
 DEVICE MAIN FUNCTIONS
 ########################## */
 
-void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget) {
-  if (device.receive()) {
-    uint8_t srcId = device.getReceivedID();
-    double srcLat = device.getReceivedLat();
-    double srcLng = device.getReceivedLng();
-   
-    this->ProcessData((PersonalDevice&) device, srcId, srcLat, srcLng);
-    hasTarget = true;
-  }else {
-    hasTarget = false;
-  }
+uint16_t currentMonitoringID = 0;
+uint16_t currentLogID = 0;
 
-  if (st.isReady() && !waitingToSend) {
-    st.reset(); 
+void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget, bool& ackMonitoring, bool& ackLog) {
+  if (device.receive()){
+    uint8_t lastPacketID = device.getTypePacket();
+    if(lastPacketID == SAFETY_PACKET){
+      uint8_t srcId = device.getReceivedID();
+      double srcLat = device.getReceivedLat();
+      double srcLng = device.getReceivedLng();
+    
+      this->ProcessData((PersonalDevice&) device, srcId, srcLat, srcLng);
+      hasTarget = true;
+    }else {
+      hasTarget = false;
+    }
 
-    long jitter = random(0, 201);
-    jitterTargetTime = millis() + jitter; 
-    waitingToSend = true;
+    if (st.isReady() && !waitingToSend) {
+      st.reset(); 
+
+      long jitter = random(0, 201);
+      jitterTargetTime = millis() + jitter; 
+      waitingToSend = true;
+    }else if(lastPacketID == ACK_PACKET){
+      uint16_t receivedAckID = device.getRandomPacketID(); 
+      if (receivedAckID == currentMonitoringID) {
+          ackMonitoring = true;
+          Serial.println("ACK Monitoring Recebido!");
+      }
+      
+      if (receivedAckID == currentLogID) {
+          ackLog = true;
+          Serial.println("ACK Log Recebido!");
+      }
+
+    }
   }
+    
 }
 
 static inline bool hasFixSimplePersonal(PersonalDevice& personal) {
   return personal.hasLocation() && personal.getSatValid() && personal.getHdop() <= 10.0;
 }
 
-void mainFunctions::SendPacketDevice(DeviceBase& device, SimpleTimer& st_safety, SimpleTimer& st_monitoring, unsigned long& jitterTargetTime) {
+void mainFunctions::SendPacketSafety(DeviceBase& device, SimpleTimer& st_safety, unsigned long& jitterTargetTime) {
     
     unsigned long now = millis();
-    bool safetyPronto = st_safety.isReady();
-    bool monitoringPronto = st_monitoring.isReady();
 
-    // Se nenhum timer disparou e não estamos em período de jitter (atraso por canal ocupado), sai da função
-    if (!safetyPronto && !monitoringPronto && now < jitterTargetTime) {
-        return;
-    }
+
 
     // Se algum estiver pronto, mas o canal estiver ocupado:
     // if (device.isChannelBusy(SAFETY_CHANNEL)) {
@@ -50,38 +64,46 @@ void mainFunctions::SendPacketDevice(DeviceBase& device, SimpleTimer& st_safety,
     //     return; 
     // }
     // Se chegou aqui, o canal está livre. Agora checa o GPS:
-        if (hasFixSimplePersonal((PersonalDevice&) device)|| true) {
+      if (hasFixSimplePersonal((PersonalDevice&) device)|| true) {
+      
+      // Executa o envio baseado no timer que disparou
+      if(device.isChannelBusy(SAFETY_CHANNEL)) {
+          Serial.println("Canal de segurança ocupado no momento do envio. Reagendando...");
+          jitterTargetTime = now + random(100, 1000); 
+          return;
+      }
+      device.sendSafety();
+      st_safety.reset();
+      Serial.println(">>> Enviado: SAFETY");
         
-        // Executa o envio baseado no timer que disparou
-        if (safetyPronto) {
-          if(device.isChannelBusy(SAFETY_CHANNEL)) {
-              Serial.println("Canal de segurança ocupado no momento do envio. Reagendando...");
-              jitterTargetTime = now + random(100, 1000); 
-              return;
-            }
-            device.sendSafety();
-            st_safety.reset(); // Só reseta após enviar com sucesso
-            Serial.println(">>> Enviado: SAFETY");
-              
-        } 
-        else if (monitoringPronto) {
-          if(device.isChannelBusy(MONITORING_CHANNEL)) {
-              Serial.println("Canal de monitoramento ocupado no momento do envio. Reagendando...");
-              jitterTargetTime = now + random(100, 1000); 
-              return;
-            }
-            device.sendMonitoring();
-            delay(2000);
-            device.sendLog();
-            st_monitoring.reset();
-            Serial.println(">>> Enviado: MONITORING");
-
-        }
-
-        
-        // Reseta o jitterTargetTime para o presente, já que o envio foi concluído
-        jitterTargetTime = 0;
+      // Reseta o jitterTargetTime para o presente, já que o envio foi concluído
+      jitterTargetTime = 0;
     }
+}
+
+void mainFunctions::SendPacketLog(DeviceBase& device, SimpleTimer& st_monitoring, unsigned long& jitterTargetTime, bool ackMonitoring, bool ackLog){
+
+  unsigned long now = millis();
+  if(device.isChannelBusy(MONITORING_CHANNEL)) {
+      Serial.println("Canal de monitoramento ocupado no momento do envio. Reagendando...");
+      jitterTargetTime = now + random(100, 1000); 
+      return;
+    }
+  if (!ackMonitoring && !ackLog){
+    currentMonitoringID = (uint16_t)random(0, 65536);
+    currentLogID = (uint16_t)random(0, 65536);
+    device.sendMonitoring();
+    device.sendLog();
+  }else if(ackMonitoring && !ackLog){
+    currentLogID = (uint16_t)random(0, 65536);
+    device.sendLog();
+  }else if(!ackMonitoring && ackLog){
+    currentMonitoringID = (uint16_t)random(0, 65536);
+    device.sendMonitoring();
+  }
+
+  
+  Serial.println(">>> Enviado: MONITORING");
 }
 
 /* ##########################

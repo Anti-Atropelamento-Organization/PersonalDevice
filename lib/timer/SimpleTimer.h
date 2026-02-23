@@ -23,6 +23,8 @@ class SimpleTimer {
 
     // Retorna o valor atual do intervalo configurado
     unsigned long getInterval();
+
+    bool alreadyGoal(unsigned long wishTime);
 };
 
 #endif

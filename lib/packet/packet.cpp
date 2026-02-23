@@ -220,6 +220,7 @@ uint8_t packet::getDeviceID() {
     }
     return 0; // Se não for nenhum conhecido
 }
+
 uint16_t packet::getAckRandomID() {
     if(_lastDecodedPacketType == ACK_PACKET) {
         return ackData.RandomID;

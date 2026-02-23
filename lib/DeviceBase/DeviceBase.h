@@ -67,6 +67,10 @@ public:
 
     uint8_t getReceivedID();
 
+    uint8_t getTypePacket();
+
+     uint16_t getRandomPacketID();
+
 protected:
 
     virtual void buildSafetyPacket() = 0;
@@ -104,6 +108,8 @@ protected:
     packet pckt;
     CMSLoRa lora;
     TinyGPSPlus gps;
+
+    uint8_t lastPacketID;
 };
 
 #endif

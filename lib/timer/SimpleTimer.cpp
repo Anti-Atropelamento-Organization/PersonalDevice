@@ -21,3 +21,10 @@ void SimpleTimer::setInterval(unsigned long intervalMs) {
 unsigned long SimpleTimer::getInterval() {
     return _interval;
 }
+
+bool SimpleTimer::alreadyGoal(unsigned long wishTime){
+    if(millis() - _lastTime >= wishTime){
+        return true;
+    }
+    return false;
+}
