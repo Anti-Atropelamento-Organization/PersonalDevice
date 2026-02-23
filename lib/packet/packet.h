@@ -7,16 +7,20 @@
 #define SAFETY_PACKET      0x01
 #define MONITORING_PACKET  0x02
 #define ADVERTISE_PACKET   0x03
+#define LOG_PACKET         0x04
 
 #define VEHICLE_DEVICE     0x01
+#define PERSONAL_DEVICE    0x02
+#define GATEWAY_DEVICE     0x03
+
 #define ALERT_ADVERTISE    0xA1 
 #define ALERT_INTERLOCK    0xA2 
 
 static const int MAX_VEHICLES = 10;
 
-struct ActiveVehicles {
+struct __attribute__((packed)) ActiveVehicles {
 uint8_t id;
-double distance;
+float distance;
 uint32_t lastSeenMs;
 };
 
@@ -36,6 +40,17 @@ struct __attribute__((packed)) SafetyPayload {
 // !!! ADICIONE ISSO AQUI !!!
 #define SAFETY_PACKET_SIZE sizeof(SafetyPayload) 
 
+struct __attribute__((packed)) LogPayLoad 
+{
+    uint8_t packetType;
+    uint8_t id;
+    uint8_t deviceType;
+    int32_t last5positions[5][2];
+    uint8_t last5events[5];
+    ActiveVehicles nearbyVehicles[MAX_VEHICLES];
+};
+
+#define LOG_PACKET_SIZE sizeof(LogPayLoad)
 
 struct __attribute__((packed)) MonitoringPayload {
     uint8_t packetType;
@@ -44,12 +59,9 @@ struct __attribute__((packed)) MonitoringPayload {
     double lat;
     double lng;
     uint8_t batteryLevel;
-    int32_t last5positions[5][2];
-    uint8_t last5events[5];
     uint8_t status;
     uint8_t satellites;
     double hdop;
-    ActiveVehicles nearbyVehicles[MAX_VEHICLES];
 };
 
 // !!! ADICIONE ISSO AQUI !!!
@@ -85,11 +97,17 @@ struct MonitoringData {
     double lat;
     double lng;
     uint8_t batteryLevel;
-    int32_t last5positions[5][2];
-    uint8_t last5events[5];
     uint8_t status;
     uint8_t satellites;
     double hdop;
+};
+
+struct LogData {
+    uint8_t packetID;
+    uint8_t ID;
+    uint8_t deviceType;
+    int32_t last5positions[5][2];
+    uint8_t last5events[5];
     ActiveVehicles nearbyVehicles[MAX_VEHICLES];
 };
 
@@ -113,8 +131,9 @@ public:
 
     // Construtores (TX)
     void safetyPacket(uint8_t ID, uint8_t deviceType, double latitude,  double longitude, uint8_t *returnPacket, double speed, double course, double hdop);
-    void monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, int32_t last5positions[5][2], uint8_t last5events[5], uint8_t status, uint8_t satellites, double hdop, ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket);
+    void monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket);
     void advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket);
+    void logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket);
 
     // Decodificação (RX)
     uint8_t decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType);
@@ -135,6 +154,7 @@ public:
     uint8_t getSatellites();
     void getLast5Positions(int32_t (&positions)[5][2]);
     void getLast5Events(uint8_t (&events)[5]);
+    void getNearbyVehicles(ActiveVehicles (&vehicles)[MAX_VEHICLES]);
 
 };
 

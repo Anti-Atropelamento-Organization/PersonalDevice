@@ -71,6 +71,8 @@ void mainFunctions::SendPacketDevice(DeviceBase& device, SimpleTimer& st_safety,
               return;
             }
             device.sendMonitoring();
+            delay(2000);
+            device.sendLog();
             st_monitoring.reset();
             Serial.println(">>> Enviado: MONITORING");
 

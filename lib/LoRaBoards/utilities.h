@@ -41,8 +41,12 @@
 // 5. --------------T-BEAM S3------------------------------
 // Product: https://lilygo.cc/products/t-beam-supreme
 
- #define T_BEAM_S3_SUPREME_SX1262
+ //#define T_BEAM_S3_SUPREME_SX1262
  //#define T_BEAM_S3_SUPREME_LR1121
+
+// 5.1 -------------- HELTEC WiFi LoRa 32 V3 -------------------
+// Product: https://heltec.org/project/wifi-lora-32-v3/
+#define HELTEC_WIFI_LORA_32_V3
 
 // 6. --------------T3 S3 V1.0 or T3 S3 V1.3 -------------------
 // Product: https://lilygo.cc/products/t3s3-v1-0 , same v1.3
@@ -550,6 +554,52 @@
 #define DISPLAY_MODEL               U8G2_SH1106_128X64_NONAME_F_HW_I2C
 #define DISPLAY_MODEL_SSD_LIB       SH1106Wire
 #define BOARD_VARIANT_NAME          "T-Beam S3"
+
+#elif defined(HELTEC_WIFI_LORA_32_V3)
+
+#ifndef USING_SX1262
+#define USING_SX1262
+#endif
+
+// I2C Configuration for Heltec WiFi LoRa 32 V3
+#define I2C_SDA                     (41)
+#define I2C_SCL                     (42)
+
+// Display Configuration (opcional - Heltec V3 tem display OLED embutido)
+#define OLED_RST                    UNUSED_PIN
+
+// LoRa SX1262 Pins (já definidos em cmslora.h, mas incluídos para referência)
+#define RADIO_SCLK_PIN              (9)
+#define RADIO_MISO_PIN              (11)
+#define RADIO_MOSI_PIN              (10)
+#define RADIO_CS_PIN                (8)
+#define RADIO_RST_PIN               (12)
+#define RADIO_DIO1_PIN              (14)
+#define RADIO_BUSY_PIN              (13)
+
+// LED
+#define BOARD_LED                   (35)
+#define LED_ON                      HIGH
+
+// Button
+#define BUTTON_PIN                  (0)
+
+// ADC for Battery Monitoring
+#define ADC_PIN                     (1)
+#define ADC_CTRL                    (37)
+#define ADC_VREF                    (3300.0)    // mV
+#define ADC_RESOLUTION              (4095.0)
+#define BAT_ADC_PULLUP_RES          (100000.0)
+#define BAT_ADC_PULLDOWN_RES        (100000.0)
+#define BAT_MAX_VOLTAGE             (4.2)
+#define BAT_VOL_COMPENSATION        (0.0)
+
+// Display
+#define HAS_DISPLAY
+#define DISPLAY_MODEL               U8G2_SSD1306_128X64_NONAME_F_HW_I2C
+#define DISPLAY_MODEL_SSD_LIB       SSD1306Wire
+
+#define BOARD_VARIANT_NAME          "Heltec WiFi LoRa 32 V3"
 
 #elif defined(T_MOTION_S76G)
 

@@ -38,6 +38,7 @@ public:
 
     void sendSafety();
     void sendMonitoring();
+    void sendLog();
     bool receive();
 
     bool isChannelBusy(int channel);
@@ -70,6 +71,7 @@ protected:
 
     virtual void buildSafetyPacket() = 0;
     virtual void buildMonitoringPacket() = 0;
+    virtual void buildLogPacket() {};
 
     virtual void onReceiveDecoded() {}
     virtual uint8_t safetySF() const { return 7; }
@@ -89,7 +91,8 @@ protected:
 
     uint8_t safetyPacket[SAFETY_PACKET_SIZE];
     uint8_t monitoringPacket[MONITORING_PACKET_SIZE];
-    uint8_t receivedPacket[MONITORING_PACKET_SIZE];
+    uint8_t logPacket[LOG_PACKET_SIZE];
+    uint8_t receivedPacket[255];
 
     double speed = 0.0;
     double deviceCourse = 0.0;

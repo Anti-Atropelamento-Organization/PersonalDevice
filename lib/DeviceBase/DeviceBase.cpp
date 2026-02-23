@@ -65,12 +65,18 @@ void DeviceBase::sendSafety() {
 }
 
 void DeviceBase::sendMonitoring() {
+    Serial.println("Tamanho do pacote de monitoramento: " + String(MONITORING_PACKET_SIZE));
     lora.sendData(monitoringPacket, MONITORING_PACKET_SIZE);
+}
+
+void DeviceBase::sendLog() {
+    Serial.println("Tamanho do pacote de log: " + String(LOG_PACKET_SIZE));
+    lora.sendData(logPacket, LOG_PACKET_SIZE);
 }
 
 bool DeviceBase::receive() {
 
-    if (lora.receiveData(receivedPacket, MONITORING_PACKET_SIZE, 100)) { 
+    if (lora.receiveData(receivedPacket, 255, 100)) { 
         
         uint8_t result = pckt.decodePacket(receivedPacket, this->deviceType);
         
@@ -91,6 +97,7 @@ bool DeviceBase::isChannelBusy(int channel) {
     } else if (channel == MONITORING_CHANNEL) {
         lora.SpreadingFactor(monitoringSF());
         buildMonitoringPacket();
+        buildLogPacket();
     }
     return lora.isChannelBusy();
 }

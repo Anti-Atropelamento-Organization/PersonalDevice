@@ -20,8 +20,11 @@ void VehicleDevice::buildSafetyPacket() {
 }
 
 void VehicleDevice::buildMonitoringPacket() {
-    pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude,
-                          batteryLevel, last5positions, last5events, status, satelites, deviceHdop, nearbyVehicles, monitoringPacket);
+    pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude, batteryLevel, status, satelites, deviceHdop, monitoringPacket);
+}
+
+void VehicleDevice::buildLogPacket() {
+    pckt.logPacket(deviceID, deviceType, last5positions, last5events, nearbyVehicles, logPacket);
 }
 
 void VehicleDevice::onReceiveDecoded() {

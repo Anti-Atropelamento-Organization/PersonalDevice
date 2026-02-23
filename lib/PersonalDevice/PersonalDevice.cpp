@@ -1,7 +1,7 @@
 #include "PersonalDevice.h"
 
 PersonalDevice::PersonalDevice() : DeviceBase() {
-    deviceType = 2;
+    deviceType = PERSONAL_DEVICE;
 }
 
 void PersonalDevice::buildSafetyPacket() {
@@ -9,8 +9,11 @@ void PersonalDevice::buildSafetyPacket() {
 }
 
 void PersonalDevice::buildMonitoringPacket() {
-    pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude,
-                          batteryLevel, last5positions, last5events, status, satelites, deviceHdop, nearbyVehicles, monitoringPacket);
+    pckt.monitoringPacket(deviceID, deviceType, deviceLatitude, deviceLongitude, batteryLevel, status, satelites, deviceHdop, monitoringPacket);
+}
+
+void PersonalDevice::buildLogPacket() {
+    pckt.logPacket(deviceID, deviceType, last5positions, last5events, nearbyVehicles, logPacket);
 }
 
 void PersonalDevice::onReceiveDecoded() {

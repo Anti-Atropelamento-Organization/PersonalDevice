@@ -23,6 +23,7 @@ public:
 protected:
     void buildSafetyPacket() override;
     void buildMonitoringPacket() override;
+    void buildLogPacket() override;
     void onReceiveDecoded() override;
 
 private:
