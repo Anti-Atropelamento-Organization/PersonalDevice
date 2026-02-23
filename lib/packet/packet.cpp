@@ -50,13 +50,14 @@ void packet::safetyPacket(uint8_t ID, uint8_t deviceType, double latitude, doubl
     memcpy(returnPacket, &pkt, sizeof(SafetyPayload));
 }
 
-void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket) {
+void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, uint16_t randomID, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket) {
     MonitoringPayload pkt;
     memset(&pkt, 0, sizeof(MonitoringPayload));
 
     pkt.packetType = MONITORING_PACKET;
     pkt.id = ID;
     pkt.deviceType = deviceType;
+    pkt.randomID = randomID;
     pkt.lat = latitude; // Cuidado: double no ESP32 é 8 bytes. Se o receptor for 8-bit, pode dar erro.
     pkt.lng = longitude;
     pkt.batteryLevel = batteryLevel;
@@ -88,13 +89,14 @@ void packet::advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket
     memcpy(returnPacket, &pkt, ADVERTISE_PACKET_SIZE);
 }
 
-void packet::logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket) {
+void packet::logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket) {
     LogPayLoad pkt;
     memset(&pkt, 0, sizeof(LogPayLoad));
 
     pkt.packetType = LOG_PACKET;
     pkt.id = ID;
     pkt.deviceType = VEHICLE_DEVICE; // Supondo que só veículos enviam log
+    pkt.randomID = randomID;
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
     memcpy(pkt.nearbyVehicles, nearbyVehicles, sizeof(pkt.nearbyVehicles));
@@ -140,6 +142,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.packetID = pkt->packetType;
         monitoringPacketData.ID = pkt->id; 
         monitoringPacketData.deviceType = pkt->deviceType;
+        monitoringPacketData.randomID = pkt->randomID;
         monitoringPacketData.lat = pkt->lat;
         monitoringPacketData.lng = pkt->lng;
         monitoringPacketData.batteryLevel = pkt->batteryLevel;
@@ -170,6 +173,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         logPacketData.packetID = pkt->packetType;
         logPacketData.ID = pkt->id;
         logPacketData.deviceType = pkt->deviceType;
+        logPacketData.randomID = pkt->randomID;
         memcpy(logPacketData.last5positions, pkt->last5positions, sizeof(pkt->last5positions));
         memcpy(logPacketData.last5events, pkt->last5events, sizeof(pkt->last5events));
         memcpy(logPacketData.nearbyVehicles, pkt->nearbyVehicles, sizeof(pkt->nearbyVehicles));
