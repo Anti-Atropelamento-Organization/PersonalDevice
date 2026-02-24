@@ -19,11 +19,13 @@ PersonalDevice personal;
 mainFunctions MF;
 
 
-SimpleTimer st_safety(30000);
+SimpleTimer st_safety(60000);
 SimpleTimer st_monitoring(3000);
 SimpleTimer alertTimer(3000);
-SimpleTimer timerbloqueante(5000); 
+SimpleTimer timerbloqueante(10000); 
+SimpleTimer teste(1000);
 
+uint8_t cont = 1;
 
 bool timerAck = false;
 
@@ -41,6 +43,7 @@ uint16_t randomMonitoring = 0;
 uint16_t randomLog = 0;
 
 void setup() {
+
   Serial.begin(115200);
   delay(200);
 
@@ -51,7 +54,10 @@ void setup() {
   personal.setup();
 
   randomSeed((uint32_t)esp_random() ^ (uint32_t)micros());
+
 }
+
+
 
 void loop() {
   MF.SetPersonalConst(personal);
@@ -62,25 +68,41 @@ void loop() {
     MF.SendPacketSafety(personal, st_safety, jitterTargetTimeSafety);
   }
 
+
   if(st_monitoring.isReady()){
-    if((!ackMonitoring || !ackLog) && timerAck == false){
+    if((!ackMonitoring || !ackLog) && timerAck == false && cont == 1){
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
       timerAck = true;
-    }else if(timerbloqueante.alreadyGoal(2000) && timerAck){
+      timerbloqueante.reset();
+      Serial.println("Enviando primeiro log - cont: " + String(cont));
+      cont++;
+    } 
+    else if(timerbloqueante.alreadyGoal(3000) && timerAck && cont == 2){
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
-    }else if(timerbloqueante.isReady() && timerAck){
+      Serial.println("Enviando segundo log - cont: " + String(cont));
+      cont++;
+    } 
+    else if((timerbloqueante.isReady() || (ackMonitoring && ackLog)) && timerAck && cont == 3){
       timerAck = false;
       st_monitoring.reset();
+      
+      ackMonitoring = false;
+      ackLog = false;
+      
+      Serial.println("Ciclo Log finalizado. Aguardando intervalo... - cont: " + String(cont));
+      cont = 1;
     }
   }
-  
 
+/*   if(teste.isReady()){
+    Serial.println("Sats: " + String(personal.getSatValue()));
+    teste.reset();
+  } */
 
-
-  if (alertTimer.isReady()) {
+    /* if (alertTimer.isReady()) {
     MF.ActiveAlert(personal);
     alertTimer.reset();
-  }
+  } */
+
   personal.cleanOldVehicles();
 }
-

@@ -6,7 +6,9 @@ DEVICE MAIN FUNCTIONS
 
 void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget, bool& ackMonitoring, bool& ackLog) {
   if (device.receive()){
+    Serial.println(">> PACOTE RECEBIDO");
     uint8_t lastPacketID = device.getTypePacket();
+    Serial.println("lastPacketID: " + String(lastPacketID));
     if(lastPacketID == SAFETY_PACKET){
       uint8_t srcId = device.getReceivedID();
       double srcLat = device.getReceivedLat();
@@ -25,6 +27,7 @@ void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, uns
       jitterTargetTime = millis() + jitter; 
       waitingToSend = true;
     }else if(lastPacketID == ACK_PACKET){
+      Serial.println("PACOTE ACK RECEBIDO");
       uint16_t receivedAckID = device.getRandomPacketID(); 
       if (receivedAckID == device.getMyRandomMonitoringID()) {
           ackMonitoring = true;
@@ -49,8 +52,6 @@ void mainFunctions::SendPacketSafety(DeviceBase& device, SimpleTimer& st_safety,
     
     unsigned long now = millis();
 
-
-
     // Se algum estiver pronto, mas o canal estiver ocupado:
     // if (device.isChannelBusy(SAFETY_CHANNEL)) {
     //     // Aplica o atraso aleatório e não reseta os timers (para tentarem de novo no próximo loop)
@@ -60,7 +61,6 @@ void mainFunctions::SendPacketSafety(DeviceBase& device, SimpleTimer& st_safety,
     //     }
     //     return; 
     // }
-    // Se chegou aqui, o canal está livre. Agora checa o GPS:
       if (hasFixSimplePersonal((PersonalDevice&) device)|| true) {
       
       // Executa o envio baseado no timer que disparou
@@ -88,14 +88,17 @@ void mainFunctions::SendPacketLog(DeviceBase& device, SimpleTimer& st_monitoring
     }
   if (!ackMonitoring && !ackLog){
     device.sendMonitoring();
-    device.sendLog();
+    //device.sendLog();
+    Serial.println(">>> Enviado: MONITORING");
+    Serial.println(">>> Enviado: LOG");
   }else if(ackMonitoring && !ackLog){
-    device.sendLog();
+    //device.sendLog();
+    Serial.println(">>> Enviado: LOG");
   }else if(!ackMonitoring && ackLog){
     device.sendMonitoring();
+    Serial.println(">>> Enviado: MONITORING");
   }
-  
-  // Serial.println(">>> Enviado: MONITORING");
+
 }
 
 /* ##########################
@@ -152,9 +155,9 @@ void mainFunctions::SendTime(PersonalDevice& personal, SimpleTimer& st, bool& ha
   uint32_t now = millis();
 
   if (now - lasttime >= 1000) {
-      Serial.print("Minimum distance from vehicle: ");
-      Serial.print(minDistance);
-      Serial.println(" meters");
+      //Serial.print("Minimum distance from vehicle: ");
+      //Serial.print(minDistance);
+      //Serial.println(" meters");
       
       lasttime = now;
   }
@@ -169,15 +172,15 @@ void mainFunctions::SendTime(PersonalDevice& personal, SimpleTimer& st, bool& ha
     else if (level == 3) st.setInterval(20000);
     st.reset();
     lastLevel = level;
-    Serial.println("Level: " + String(lastLevel));
+    //Serial.println("Level: " + String(lastLevel));
   }
 }
 
 void mainFunctions::ProcessData(PersonalDevice& personal, uint8_t id, double srcLat, double srcLng) {
     double dist = personal.calculateDistance(srcLat, srcLng);
-    Serial.println();
+    /* Serial.println();
     Serial.println("Distance calculada: " + String(dist) + " meters");
-    Serial.println();
+    Serial.println(); */
     personal.updateVehicleList(id, dist);
 };
 

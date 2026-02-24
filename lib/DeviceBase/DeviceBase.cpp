@@ -10,7 +10,8 @@ DeviceBase::DeviceBase() {
 
 void DeviceBase::setup() {
     lora.begin();
-    lora.SpreadingFactor(7);
+    lora.SpreadingFactor(9);
+    //lora.StartReceive();
     lora.receiveData(receivedPacket, 0, 0);
 }
 
@@ -65,12 +66,12 @@ void DeviceBase::sendSafety() {
 }
 
 void DeviceBase::sendMonitoring() {
-    Serial.println("Tamanho do pacote de monitoramento: " + String(MONITORING_PACKET_SIZE));
+    //Serial.println("Tamanho do pacote de monitoramento: " + String(MONITORING_PACKET_SIZE));
     lora.sendData(monitoringPacket, MONITORING_PACKET_SIZE);
 }
 
 void DeviceBase::sendLog() {
-    Serial.println("Tamanho do pacote de log: " + String(LOG_PACKET_SIZE));
+    //Serial.println("Tamanho do pacote de log: " + String(LOG_PACKET_SIZE));
     lora.sendData(logPacket, LOG_PACKET_SIZE);
 }
 
@@ -198,5 +199,5 @@ uint16_t DeviceBase::getMyRandomMonitoringID(){
 void DeviceBase::cleanEvents()
 {
  memset(last5events, 0, sizeof(last5events));
- 
+
 }

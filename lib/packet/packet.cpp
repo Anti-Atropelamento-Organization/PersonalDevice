@@ -112,7 +112,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
     int32_t longitude = receivedPacket[5];
 
 
-    _lastDecodedPacketType = packetID; 
+    _lastDecodedPacketType = packetType; 
 
     if (packetType == myDeviceType){
         Serial.println("Ignorando pacote do mesmo tipo." + String(packetType) + " " + String(myDeviceType));
@@ -196,7 +196,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         ackData.ID = pkt->ID;
         ackData.RandomID = pkt->RandomID;
     }
-    return packetID;
+    return _lastDecodedPacketType;
 }
 
 // --- GETTERS CORRIGIDOS ---
