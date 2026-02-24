@@ -95,8 +95,8 @@ void packet::logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID,  int32_t
 
     pkt.packetType = LOG_PACKET;
     pkt.id = ID;
+    pkt.deviceType = VEHICLE_DEVICE;
     pkt.randomID = randomID;
-    pkt.deviceType = VEHICLE_DEVICE; // Supondo que só veículos enviam log
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
     memcpy(pkt.nearbyVehicles, nearbyVehicles, sizeof(pkt.nearbyVehicles));
@@ -112,9 +112,10 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
     int32_t longitude = receivedPacket[5];
 
 
-    _lastDecodedPacketType = packetType; 
 
-    if (packetType == myDeviceType){
+    _lastDecodedPacketType = packetID;
+
+    if (packetType == myDeviceType && packetID != ACK_PACKET){
         Serial.println("Ignorando pacote do mesmo tipo." + String(packetType) + " " + String(myDeviceType));
         return 0;
     }
@@ -172,6 +173,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
 
     else if(packetID == ACK_PACKET) {
         AckPayload *pkt = (AckPayload*)receivedPacket;
+        logPacketData.packetID = pkt->packetType;
         ackPacketData.ID = pkt->ID;
         ackPacketData.RandomID = pkt->RandomID;
     }

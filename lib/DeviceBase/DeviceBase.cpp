@@ -85,7 +85,7 @@ bool DeviceBase::receive() {
             return false;
         }
 
-        onReceiveDecoded();
+        //onReceiveDecoded();
         return true;
     }
     return false;

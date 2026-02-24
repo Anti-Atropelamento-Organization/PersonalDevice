@@ -54,7 +54,6 @@ void setup() {
   personal.setup();
 
   randomSeed((uint32_t)esp_random() ^ (uint32_t)micros());
-
 }
 
 
@@ -68,41 +67,61 @@ void loop() {
     MF.SendPacketSafety(personal, st_safety, jitterTargetTimeSafety);
   }
 
-
   if(st_monitoring.isReady()){
-    // PASSO 1: Enviar Monitoring e iniciar espera pelo ACK
-    if(cont == 1 && !timerAck){
-      // Chama apenas o Monitoring (ajustei a lógica interna abaixo)
+    if(ackMonitoring && cont <= 3){
+      cont = 4;
+    }
+    if(ackLog){
+      st_monitoring.reset();
+      timerAck = false;
+      ackMonitoring = false;
+      ackLog = false;
+      cont = 1;
+    }
+    if(cont == 1 && !timerAck && !ackMonitoring){
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, false, true); 
       timerAck = true;
       timerbloqueante.reset();
-      Serial.println("Enviando MONITORING (Passo 1/2) - cont: " + String(cont));
+      Serial.println("Enviando MONITORING (Tentativa 1) - cont: 1");
       cont = 2;
     } 
-
-    else if(cont == 2 && (ackMonitoring || timerbloqueante.alreadyGoal(3000))){
-      if(!ackMonitoring) Serial.println("Timeout Monitoring! Enviando Log mesmo assim...");
-      
-  
-      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, true, false);
-      timerbloqueante.reset(); // Reinicia para o timeout do Log
-      Serial.println("Enviando LOG (Passo 2/2) - cont: " + String(cont));
+   
+    else if(cont == 2 && !ackMonitoring && timerbloqueante.alreadyGoal(2000)){
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, false, true);
+      Serial.println("Enviando MONITORING (Tentativa 2) - cont: 2");
       cont = 3;
-    } 
+    }
+   
+    else if(cont == 3 && (ackMonitoring || timerbloqueante.alreadyGoal(4000))){
+      if(!ackMonitoring) Serial.println("Timeout Monitoring...");
+      timerbloqueante.reset();
+      cont = 4; 
+    }
+   
+    else if(cont == 4 && !ackLog){
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, true, false); // Mudei para (true, false) para enviar LOG
+      Serial.println("Enviando LOG (Tentativa 1) - cont: 4");
+      timerbloqueante.reset(); 
+      cont = 5;
+    }
+   
+    else if(cont == 5 && !ackLog && timerbloqueante.alreadyGoal(2000)){
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, true, false);
+      Serial.println("Enviando LOG (Tentativa 2) - cont: 5");
+      cont = 6;
+    }
   
-    else if(cont == 3 && (ackLog || timerbloqueante.alreadyGoal(3000))){
-      if(!ackLog) Serial.println("Timeout Log! Finalizando ciclo.");
+    else if(cont == 6 && (ackLog || timerbloqueante.alreadyGoal(4000))){
+      if(!ackLog) Serial.println("Timeout Log...");
       
-      timerAck = false;
+      Serial.println("Ciclo completo. Resetando timers.");
       st_monitoring.reset();
-      
+      timerAck = false;
       ackMonitoring = false;
       ackLog = false;
-      
-      Serial.println("Ciclo completo. Aguardando intervalo... - cont: " + String(cont));
       cont = 1;
     }
-  }
+}
 
 /*   if(teste.isReady()){
     Serial.println("Sats: " + String(personal.getSatValue()));

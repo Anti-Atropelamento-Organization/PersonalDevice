@@ -6,9 +6,7 @@ DEVICE MAIN FUNCTIONS
 
 void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget, bool& ackMonitoring, bool& ackLog) {
   if (device.receive()){
-    Serial.println(">> PACOTE RECEBIDO");
     uint8_t lastPacketID = device.getTypePacket();
-    Serial.println("lastPacketID: " + String(lastPacketID));
     if(lastPacketID == SAFETY_PACKET){
       uint8_t srcId = device.getReceivedID();
       double srcLat = device.getReceivedLat();
@@ -27,16 +25,19 @@ void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, uns
       jitterTargetTime = millis() + jitter; 
       waitingToSend = true;
     }else if(lastPacketID == ACK_PACKET){
-      Serial.println("PACOTE ACK RECEBIDO");
+      Serial.println(">> PACOTE ACK RECEBIDO");
+      Serial.println("My Random monitoring: " + String(device.getMyRandomMonitoringID()));
+      Serial.println("My Random log: " + String(device.getMyRandomLogID()));
       uint16_t receivedAckID = device.getRandomPacketID(); 
+      Serial.println("Packet Random: " + String(receivedAckID));
       if (receivedAckID == device.getMyRandomMonitoringID()) {
           ackMonitoring = true;
-          Serial.println("ACK Monitoring Recebido!");
+          Serial.println("ACK MONITORING");
       }
       
       if (receivedAckID == device.getMyRandomLogID()) {
           ackLog = true;
-          Serial.println("ACK Log Recebido!");
+          Serial.println("ACK LOG");
           device.cleanEvents();
       }
     }
@@ -82,24 +83,22 @@ void mainFunctions::SendPacketLog(DeviceBase& device, SimpleTimer& st_monitoring
 
   unsigned long now = millis();
   if(device.isChannelBusy(MONITORING_CHANNEL)) {
-      Serial.println("Canal de monitoramento ocupado no momento do envio. Reagendando...");
+      Serial.println("Canal ocupado. Reagendando...");
       jitterTargetTime = now + random(100, 1000); 
       return;
-    }
-  if (!ackMonitoring && !ackLog){
-    device.sendMonitoring();
-    //device.sendLog();
-    Serial.println(">>> Enviado: MONITORING");
-    Serial.println(">>> Enviado: LOG");
-  }else if(ackMonitoring && !ackLog){
-    //device.sendLog();
-    Serial.println(">>> Enviado: LOG");
-  }else if(!ackMonitoring && ackLog){
-    device.sendMonitoring();
-    Serial.println(">>> Enviado: MONITORING");
   }
 
+  if (!ackMonitoring && ackLog){
+    device.sendMonitoring();
+    Serial.println(">>> Transmitindo: MONITORING");
+  }
+
+  else if(ackMonitoring && !ackLog){
+    device.sendLog();
+    Serial.println(">>> Transmitindo: LOG");
+  }
 }
+
 
 /* ##########################
 VEHICLE MAIN FUNCTIONS
