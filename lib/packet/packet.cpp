@@ -287,3 +287,10 @@ void packet::getNearbyVehicles(ActiveVehicles (&vehicles)[MAX_VEHICLES]) {
         memset(vehicles, 0, sizeof(vehicles));
     }
 }
+
+uint16_t packet::getAckRandomID() {
+    if(_lastDecodedPacketType == ACK_PACKET) {
+        return ackPacketData.RandomID;
+    }
+    return 0;
+}
