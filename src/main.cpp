@@ -70,26 +70,36 @@ void loop() {
 
 
   if(st_monitoring.isReady()){
-    if((!ackMonitoring || !ackLog) && timerAck == false && cont == 1){
-      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
+    // PASSO 1: Enviar Monitoring e iniciar espera pelo ACK
+    if(cont == 1 && !timerAck){
+      // Chama apenas o Monitoring (ajustei a lógica interna abaixo)
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, false, true); 
       timerAck = true;
       timerbloqueante.reset();
-      Serial.println("Enviando primeiro log - cont: " + String(cont));
-      cont++;
+      Serial.println("Enviando MONITORING (Passo 1/2) - cont: " + String(cont));
+      cont = 2;
     } 
-    else if(timerbloqueante.alreadyGoal(3000) && timerAck && cont == 2){
-      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, ackMonitoring, ackLog);
-      Serial.println("Enviando segundo log - cont: " + String(cont));
-      cont++;
+
+    else if(cont == 2 && (ackMonitoring || timerbloqueante.alreadyGoal(3000))){
+      if(!ackMonitoring) Serial.println("Timeout Monitoring! Enviando Log mesmo assim...");
+      
+  
+      MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, true, false);
+      timerbloqueante.reset(); // Reinicia para o timeout do Log
+      Serial.println("Enviando LOG (Passo 2/2) - cont: " + String(cont));
+      cont = 3;
     } 
-    else if((timerbloqueante.isReady() || (ackMonitoring && ackLog)) && timerAck && cont == 3){
+  
+    else if(cont == 3 && (ackLog || timerbloqueante.alreadyGoal(3000))){
+      if(!ackLog) Serial.println("Timeout Log! Finalizando ciclo.");
+      
       timerAck = false;
       st_monitoring.reset();
       
       ackMonitoring = false;
       ackLog = false;
       
-      Serial.println("Ciclo Log finalizado. Aguardando intervalo... - cont: " + String(cont));
+      Serial.println("Ciclo completo. Aguardando intervalo... - cont: " + String(cont));
       cont = 1;
     }
   }
