@@ -5,7 +5,7 @@ SafetyData safetyPacketData;
 MonitoringData monitoringPacketData;
 AdvertiseData advertisePacketData;
 LogData logPacketData;
-AckData ackData;
+AckData ackPacketData;
 
 // Construtor
 packet::packet() {
@@ -26,6 +26,16 @@ float packet::mapUint8ToFloat(uint8_t value) {
 }
 
 // --- CONSTRUTORES DE PACOTE (TX) ---
+void packet::ackPacket(uint8_t ID, uint16_t RandomID, uint8_t *returnPacket) {
+    AckPayload pkt;
+    memset(&pkt, 0, sizeof(AckPayload));
+
+    pkt.packetType = ACK_PACKET;
+    pkt.ID = ID;
+    pkt.RandomID = RandomID;
+
+    memcpy(returnPacket, &pkt, sizeof(AckPayload));
+}
 
 void packet::safetyPacket(uint8_t ID, uint8_t deviceType, double latitude, double longitude, uint8_t *returnPacket, double speed, double course, double hdop) {
     SafetyPayload pkt;
@@ -50,13 +60,14 @@ void packet::safetyPacket(uint8_t ID, uint8_t deviceType, double latitude, doubl
     memcpy(returnPacket, &pkt, sizeof(SafetyPayload));
 }
 
-void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket) {
+void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, uint16_t randomID, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket) {
     MonitoringPayload pkt;
     memset(&pkt, 0, sizeof(MonitoringPayload));
 
     pkt.packetType = MONITORING_PACKET;
     pkt.id = ID;
     pkt.deviceType = deviceType;
+    pkt.randomID = randomID;
     pkt.lat = mapDoubleToInt32(latitude);
     pkt.lng = mapDoubleToInt32(longitude);
     pkt.batteryLevel = batteryLevel;
@@ -67,16 +78,6 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, 
     memcpy(returnPacket, &pkt, sizeof(MonitoringPayload));
 }
 
-void packet::ackPacket(uint8_t ID, uint16_t RandomID, uint8_t *returnPacket) {
-    AckPayload pkt;
-    memset(&pkt, 0, sizeof(AckPayload));
-
-    pkt.ID = ID;
-    pkt.RandomID = RandomID;
-
-    memcpy(returnPacket, &pkt, ACK_PACKET_SIZE);
-}
-
 void packet::advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket) {
     AdvertisePayload pkt;
     memset(&pkt, 0, sizeof(AdvertisePayload));
@@ -85,21 +86,22 @@ void packet::advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket
     pkt.id = ID;
     pkt.deviceID = deviceID;
 
-    memcpy(returnPacket, &pkt, ADVERTISE_PACKET_SIZE);
+    memcpy(returnPacket, &pkt, sizeof(AdvertisePayload));
 }
 
-void packet::logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket) {
+void packet::logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID,  int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket) {
     LogPayLoad pkt;
     memset(&pkt, 0, sizeof(LogPayLoad));
 
     pkt.packetType = LOG_PACKET;
     pkt.id = ID;
+    pkt.randomID = randomID;
     pkt.deviceType = VEHICLE_DEVICE; // Supondo que só veículos enviam log
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
     memcpy(pkt.nearbyVehicles, nearbyVehicles, sizeof(pkt.nearbyVehicles));
 
-    memcpy(returnPacket, &pkt, LOG_PACKET_SIZE);
+    memcpy(returnPacket, &pkt, sizeof(LogPayLoad));
 }
 
 // --- DECODIFICADOR (RX) ---
@@ -138,7 +140,7 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         MonitoringPayload *pkt = (MonitoringPayload*)receivedPacket;
 
         monitoringPacketData.packetID = pkt->packetType;
-        monitoringPacketData.ID = pkt->id; 
+        monitoringPacketData.ID = pkt->id; // Agora lê corretamente
         monitoringPacketData.deviceType = pkt->deviceType;
         monitoringPacketData.lat = pkt->lat;
         monitoringPacketData.lng = pkt->lng;
@@ -147,19 +149,12 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         monitoringPacketData.satellites = pkt->satellites;
         monitoringPacketData.hdop = mapUint8ToFloat(pkt->hdop);
 
-        Serial.println("[decodePacket] Pacote de monitoramento decodificado:");
-        Serial.println("ID: " + String(monitoringPacketData.ID));
-        Serial.println("Device Type: " + String(monitoringPacketData.deviceType));
-        Serial.println("Latitude: " + String(monitoringPacketData.lat, 6));
-        Serial.println("Longitude: " + String(monitoringPacketData.lng, 6));
-        Serial.println("Battery Level: " + String(monitoringPacketData.batteryLevel));
-        Serial.println("Status: " + String(monitoringPacketData.status));
-        Serial.println("Satellites: " + String(monitoringPacketData.satellites));
-        Serial.println("HDOP: " + String(monitoringPacketData.hdop, 2));
+        Serial.print("ID: "); Serial.println(monitoringPacketData.ID);
 
     } else if (packetID == ADVERTISE_PACKET) {
         AdvertisePayload *pkt = (AdvertisePayload*)receivedPacket;
         
+
         advertisePacketData.deviceID = pkt->deviceID;
         advertisePacketData.ID = pkt->id; // Lê ID do remetente
         
@@ -173,27 +168,12 @@ uint8_t packet::decodePacket(uint8_t *receivedPacket, uint8_t myDeviceType) {
         memcpy(logPacketData.last5positions, pkt->last5positions, sizeof(pkt->last5positions));
         memcpy(logPacketData.last5events, pkt->last5events, sizeof(pkt->last5events));
         memcpy(logPacketData.nearbyVehicles, pkt->nearbyVehicles, sizeof(pkt->nearbyVehicles));
-
-        Serial.println("[decodePacket] Pacote de log decodificado:");
-        Serial.println("ID: " + String(logPacketData.ID));
-        Serial.println("Device Type: " + String(logPacketData.deviceType));
-            for (int i = 0; i < 5; i++) {
-                Serial.println("Last Position " + String(i) + ": (" + String(logPacketData.last5positions[i][0]) + ", " + String(logPacketData.last5positions[i][1]) + ")");
-                Serial.println("Last Event " + String(i) + ": " + String(logPacketData.last5events[i]));
-            }
-            for (int i = 0; i < MAX_VEHICLES; i++) {
-                Serial.println("Nearby Vehicle " + String(i) + ": ID=" + String(logPacketData.nearbyVehicles[i].id) + ", Distance=" + String(logPacketData.nearbyVehicles[i].distance, 2) + "m, lastSeen=" + String(logPacketData.nearbyVehicles[i].lastSeenMs / 1000) + "s ago");
-            }
-
     }
+
     else if(packetID == ACK_PACKET) {
         AckPayload *pkt = (AckPayload*)receivedPacket;
-
-        Serial.println("[decodePacket] Pacote de ACK decodificado:");
-        Serial.println("ID: " + String(pkt->ID));
-        
-        ackData.ID = pkt->ID;
-        ackData.RandomID = pkt->RandomID;
+        ackPacketData.ID = pkt->ID;
+        ackPacketData.RandomID = pkt->RandomID;
     }
     return _lastDecodedPacketType;
 }
@@ -219,12 +199,6 @@ uint8_t packet::getDeviceID() {
         return logPacketData.ID;
     }
     return 0; // Se não for nenhum conhecido
-}
-uint16_t packet::getAckRandomID() {
-    if(_lastDecodedPacketType == ACK_PACKET) {
-        return ackData.RandomID;
-    }
-    return 0;
 }
 
 uint8_t packet::getDeviceType() {
@@ -252,7 +226,7 @@ float packet::getLat() {
     if(_lastDecodedPacketType == SAFETY_PACKET) {
         return (float)safetyPacketData.lat / 1000000.0;
     } else if(_lastDecodedPacketType == MONITORING_PACKET) {
-        return monitoringPacketData.lat / 1000000.0;
+        return (float)monitoringPacketData.lat / 1000000.0;
     }
     return 0.0;
 }
@@ -261,7 +235,7 @@ float packet::getLng() {
     if(_lastDecodedPacketType == SAFETY_PACKET) {
         return (float)safetyPacketData.lng / 1000000.0;
     } else if(_lastDecodedPacketType == MONITORING_PACKET) {
-        return monitoringPacketData.lng / 1000000.0;
+        return (float)monitoringPacketData.lng / 1000000.0;
     }
     return 0.0;
 }
