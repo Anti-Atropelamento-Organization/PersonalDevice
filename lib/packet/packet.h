@@ -28,6 +28,7 @@ uint32_t lastSeenMs;
 // --- ESTRUTURAS COMPACTADAS (PACKED) ---
 
 struct __attribute__((packed)) AckPayload {
+    uint8_t packetID;
     uint8_t ID; // ID do destinatário
     uint16_t RandomID;
 };
@@ -52,7 +53,6 @@ struct __attribute__((packed)) LogPayLoad
     uint8_t packetType;
     uint8_t id;
     uint8_t deviceType;
-    uint16_t randomID;  
     int32_t last5positions[5][2];
     uint8_t last5events[5];
     ActiveVehicles nearbyVehicles[MAX_VEHICLES];
@@ -64,13 +64,12 @@ struct __attribute__((packed)) MonitoringPayload {
     uint8_t packetType;
     uint8_t id;
     uint8_t deviceType;
-    uint16_t randomID;
-    double lat;
-    double lng;
+    int32_t lat;
+    int32_t lng;
     uint8_t batteryLevel;
     uint8_t status;
     uint8_t satellites;
-    double hdop;
+    uint8_t hdop;
 };
 
 // !!! ADICIONE ISSO AQUI !!!
@@ -103,20 +102,18 @@ struct MonitoringData {
     uint8_t packetID;
     uint8_t ID;
     uint8_t deviceType;
-    uint16_t randomID;
-    double lat;
-    double lng;
+    int32_t lat;
+    int32_t lng;
     uint8_t batteryLevel;
     uint8_t status;
     uint8_t satellites;
-    double hdop;
+    float hdop;
 };
 
 struct LogData {
     uint8_t packetID;
     uint8_t ID;
     uint8_t deviceType;
-    uint16_t randomID;
     int32_t last5positions[5][2];
     uint8_t last5events[5];
     ActiveVehicles nearbyVehicles[MAX_VEHICLES];
@@ -129,6 +126,7 @@ struct AdvertiseData {
 };
 
 struct AckData {
+    uint8_t packetID;
     uint8_t ID;
     uint16_t RandomID;
 };
@@ -147,9 +145,9 @@ public:
 
     // Construtores (TX)
     void safetyPacket(uint8_t ID, uint8_t deviceType, double latitude,  double longitude, uint8_t *returnPacket, double speed, double course, double hdop);
-    void monitoringPacket(uint8_t ID,  uint8_t deviceType, uint16_t randomID, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket);
+    void monitoringPacket(uint8_t ID,  uint8_t deviceType, double latitude, double longitude, uint8_t batteryLevel, uint8_t status, uint8_t satellites, double hdop, uint8_t *returnPacket);
     void advertisePacket(uint8_t ID, uint8_t deviceID, uint8_t *returnPacket);
-    void logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket);
+    void logPacket(uint8_t ID, uint8_t deviceID, int32_t last5positions[5][2], uint8_t last5events[5], ActiveVehicles nearbyVehicles[MAX_VEHICLES], uint8_t *returnPacket);
     void ackPacket(uint8_t ID, uint16_t RandomID, uint8_t *returnPacket);
 
     // Decodificação (RX)
