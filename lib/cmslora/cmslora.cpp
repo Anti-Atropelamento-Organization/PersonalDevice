@@ -27,10 +27,10 @@ float CMSLoRa::getSignal(){
   return radio.getRSSI();
 }
 
-float CMSLoRa::getDataRate()
-{
-  return radio.getDataRate();
-}
+//float CMSLoRa::getDataRate()
+//{
+//  return radio.getDataRate();
+//}
 // retorna o tempo que o rádio ficará ocupado enviando o pacote 
 unsigned long CMSLoRa::timeOnAir(int size)
 {
