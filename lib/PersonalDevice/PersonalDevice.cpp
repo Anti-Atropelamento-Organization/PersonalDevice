@@ -15,12 +15,7 @@ void PersonalDevice::buildMonitoringPacket() {
 
 void PersonalDevice::buildLogPacket() {
   LogRandomID = (uint16_t)random(0, 65536);
-  Serial.println("deviceID enviado: " + String(deviceID));
-  Serial.println("Random LOG enviado: " + String(LogRandomID));
-  Serial.println("deviceType enviado: " + String(deviceType));
-  
-  pckt.logPacket(deviceID, LogRandomID, deviceType, last5positions, last5events, nearbyVehicles, logPacket);
-  
+  pckt.logPacket(deviceID, deviceType, LogRandomID, last5positions, last5events, nearbyVehicles, logPacket);
 }
 
 void PersonalDevice::onReceiveDecoded() {

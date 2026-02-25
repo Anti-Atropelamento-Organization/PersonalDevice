@@ -95,7 +95,7 @@ void packet::logPacket(uint8_t ID, uint8_t deviceID, uint16_t randomID,  int32_t
 
     pkt.packetType = LOG_PACKET;
     pkt.id = ID;
-    pkt.deviceType = VEHICLE_DEVICE;
+    pkt.deviceType = deviceID;
     pkt.randomID = randomID;
     memcpy(pkt.last5positions, last5positions, sizeof(pkt.last5positions));
     memcpy(pkt.last5events, last5events, sizeof(pkt.last5events));
@@ -291,8 +291,15 @@ void packet::getNearbyVehicles(ActiveVehicles (&vehicles)[MAX_VEHICLES]) {
 }
 
 uint16_t packet::getAckRandomID() {
-    if(_lastDecodedPacketType == ACK_PACKET) {
+    if(_lastDecodedPacketType == MONITORING_PACKET) {
+        return monitoringPacketData.randomID;
+    }
+    else if(_lastDecodedPacketType == LOG_PACKET) {
+        return logPacketData.randomID;
+    }
+    else if(_lastDecodedPacketType == ACK_PACKET) {
         return ackPacketData.RandomID;
     }
+    Serial.println("Nenhum pacote válido para obter RandomID.");
     return 0;
 }

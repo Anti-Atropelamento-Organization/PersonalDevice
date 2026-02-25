@@ -99,6 +99,8 @@ bool DeviceBase::isChannelBusy(int channel) {
         lora.SpreadingFactor(monitoringSF());
         buildMonitoringPacket();
         buildLogPacket();
+        
+        
     }
     return lora.isChannelBusy();
 }
