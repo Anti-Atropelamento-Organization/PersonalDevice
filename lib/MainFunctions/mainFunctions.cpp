@@ -53,15 +53,6 @@ void mainFunctions::SendPacketSafety(DeviceBase& device, SimpleTimer& st_safety,
     
     unsigned long now = millis();
 
-    // Se algum estiver pronto, mas o canal estiver ocupado:
-    // if (device.isChannelBusy(SAFETY_CHANNEL)) {
-    //     // Aplica o atraso aleatório e não reseta os timers (para tentarem de novo no próximo loop)
-    //     if (now >= jitterTargetTime) { 
-    //         jitterTargetTime = now + random(100, 1000); 
-    //         Serial.println("Canal ocupado. Reagendando tentativa...");
-    //     }
-    //     return; 
-    // }
       if (hasFixSimplePersonal((PersonalDevice&) device)|| true) {
       
       // Executa o envio baseado no timer que disparou
@@ -98,40 +89,6 @@ void mainFunctions::SendPacketLog(DeviceBase& device, SimpleTimer& st_monitoring
     Serial.println(">>> Transmitindo: LOG");
   }
 }
-
-
-/* ##########################
-VEHICLE MAIN FUNCTIONS
-########################## */
-
-static inline bool hasFixSimpleVehicle(VehicleDevice& vehicle) {
-  return vehicle.hasLocation() && vehicle.getSatValid() && vehicle.getHdop() <= 2.0;
-}
-
-void mainFunctions::SetVehicleConst(VehicleDevice& vehicle) {
-
-  vehicle.alimentandoGPS();
-  bool fixOk = hasFixSimpleVehicle(vehicle);
-  bool satValid = vehicle.getSatValid();
-  uint32_t sats = satValid ? vehicle.getSatValue() : 0;
-  vehicle.setHdop();
-  vehicle.setSatValue();
-  
-  
-  if (fixOk) {
-    vehicle.setLatitude();
-    vehicle.setLongitude();
-    vehicle.setSpeed();
-    vehicle.setCourse();
-    vehicle.setRadius(vehicle.getHdop());
-  }
-}
-
-/* ##########################
-PERSONAL MAIN FUNCTIONS
-########################## */
-
-
 
 void mainFunctions::SetPersonalConst(PersonalDevice& personal) {
   personal.alimentandoGPS();

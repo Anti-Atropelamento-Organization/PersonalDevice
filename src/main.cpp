@@ -4,7 +4,6 @@
 
 #include "LoRaBoards.h"
 #include "DeviceBase.h"
-#include "vehicleDevice.h"
 #include "PersonalDevice.h"
 
 #include <BLEDevice.h>

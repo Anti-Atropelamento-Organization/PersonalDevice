@@ -5,7 +5,6 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 #include "PersonalDevice.h"
-#include "VehicleDevice.h"
 #include "packet.h"
 #include "SimpleTimer.h"
 #include "DeviceBase.h"
@@ -14,7 +13,6 @@ class mainFunctions {
 public:
 
     void SendAlertDest();
-    void SetVehicleConst(VehicleDevice& vehicle);
     void SetPersonalConst(PersonalDevice& personal);
     void ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget, bool& ackMonitoring, bool& ackLog);
     void SendPacketSafety(DeviceBase& device, SimpleTimer& st_safety, unsigned long& jitterTargetTime);

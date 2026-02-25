@@ -11,7 +11,6 @@ DeviceBase::DeviceBase() {
 void DeviceBase::setup() {
     lora.begin();
     lora.SpreadingFactor(9);
-    //lora.StartReceive();
     lora.receiveData(receivedPacket, 0, 0);
 }
 
