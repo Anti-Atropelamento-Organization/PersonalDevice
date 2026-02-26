@@ -10,6 +10,15 @@
 #define MONITORING_CHANNEL 1
 #define SAFETY_CHANNEL 2
 
+// ################# EVENTS #################
+
+#define VEHICLE_TOO_CLOSE_EVENT 1
+#define VEHICLE_CLOSE_EVENT 2
+#define VEHICLE_AREA_EVENT 3
+#define LOW_BATTERY_EVENT 4
+#define LOW_HDOP_EVENT 5
+#define LOW_SATTELITES_EVENT 6
+#define NO_GPS_EVENT 7
 class DeviceBase {
 public:
     DeviceBase();
