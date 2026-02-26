@@ -46,6 +46,9 @@ public:
     double getCourse() const;
     void setCourse();
 
+    void setBatteryLevel();
+    uint8_t getBatteryLevel() const;
+
     void sendSafety();
     void sendMonitoring();
     void sendLog();
@@ -96,7 +99,7 @@ public:
 
     uint8_t monitoringDistanceEvent(uint8_t proxidade);
 
-    bool monitoringBaterryEvent();
+    bool monitoringBatteryEvent();
 
     bool monitoringHdopEvent();
 
@@ -124,7 +127,7 @@ protected:
     uint8_t status = 0;
     uint8_t deviceType = 0; 
     int32_t last5positions[5][2];
-    uint8_t last5events[5];
+    uint8_t last5events[10];
     uint8_t satelites = 0;
 
     uint8_t safetyPacket[SAFETY_PACKET_SIZE];
@@ -147,6 +150,10 @@ protected:
 
     uint16_t monitoringRandomID;
     uint16_t LogRandomID;
+    
+    int EventIndex = 0;
+    bool lastLocationIsValid = false;
+
 };
 
 #endif

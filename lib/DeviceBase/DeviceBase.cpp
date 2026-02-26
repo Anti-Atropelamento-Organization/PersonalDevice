@@ -202,3 +202,68 @@ void DeviceBase::cleanEvents()
  memset(last5events, 0, sizeof(last5events));
 
 }
+void DeviceBase::addEvent(uint8_t event) {
+    if(EventIndex < 5) {
+        last5events[EventIndex] = event;
+        EventIndex++;
+    }
+    else 
+    {
+        Serial.println("Lista de eventos cheia");
+    }
+
+}
+
+bool DeviceBase::monitoringBatteryEvent()
+{
+    uint8_t lastBatteryLevel = batteryLevel;
+    setBatteryLevel();
+    if(lastBatteryLevel - batteryLevel == 0) {
+        return false;
+    }
+    else if(batteryLevel <= 20) {
+        return true;
+    }
+}
+
+bool DeviceBase::monitoringHdopEvent()
+{
+    double lastHdop = deviceHdop;
+    setHdop();
+    if(deviceHdop >= 5.0 && lastHdop < 5.0) {
+        return true;
+    }
+    return false;
+}
+
+bool DeviceBase::monitoringSatEvent()
+{
+    uint8_t lastSat = satelites;
+    setSatValue();
+    if(lastSat - satelites == 0) {
+        return false;
+    }
+    else if(satelites <= 6) {
+        return true;
+    }
+}
+
+bool DeviceBase::monitoringGPSEvent()
+{
+    if(lastLocationIsValid == true)
+    {
+        if(gps.location.isValid() == false)
+        {
+            lastLocationIsValid = false;
+            return true;
+        }
+    }
+    else
+    {
+        if(gps.location.isValid() == true)
+        {
+            lastLocationIsValid = true;
+        }
+    }
+    return false;
+}
