@@ -7,6 +7,7 @@ DEVICE MAIN FUNCTIONS
 void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, unsigned long& jitterTargetTime, bool& waitingToSend, bool& hasTarget, bool& ackMonitoring, bool& ackLog) {
   if (device.receive()){
     uint8_t lastPacketID = device.getTypePacket();
+
     if(lastPacketID == SAFETY_PACKET){
       uint8_t srcId = device.getReceivedID();
       double srcLat = device.getReceivedLat();

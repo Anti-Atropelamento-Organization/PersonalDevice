@@ -19,12 +19,13 @@ mainFunctions MF;
 
 
 SimpleTimer st_safety(60000);
-SimpleTimer st_monitoring(3000);
+SimpleTimer st_monitoring(10000);
 SimpleTimer alertTimer(3000);
 SimpleTimer timerbloqueante(10000); 
 SimpleTimer teste(1000);
 
 uint8_t cont = 1;
+uint8_t contCiclos = 1;
 
 bool timerAck = false;
 
@@ -58,6 +59,9 @@ void setup() {
 
 
 void loop() {
+
+  
+
   MF.SetPersonalConst(personal);
   MF.ReceivePacketDevice(personal, st_safety, jitterTargetTimeSafety, waitingToSend, hasTarget, ackMonitoring, ackLog);
   MF.SendTime(personal, st_monitoring, hasTarget, level, lastLevel);
@@ -67,24 +71,29 @@ void loop() {
   }
 
   if(st_monitoring.isReady()){
+    
     if(ackMonitoring && cont <= 3){
       cont = 4;
     }
+    
     if(ackLog){
       st_monitoring.reset();
       timerAck = false;
       ackMonitoring = false;
       ackLog = false;
       cont = 1;
+      contCiclos++;
     }
-    if(cont == 1 && !timerAck && !ackMonitoring){
+
+    else if(cont == 1 && !timerAck && !ackMonitoring){
+      Serial.println("CICLOS: " + String(contCiclos));
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, false, true); 
       timerAck = true;
       timerbloqueante.reset();
-      Serial.println("Enviando MONITORING (Tentativa 1) - cont: 1");
+      Serial.println("Enviando MONITORING (Tentativa 1) - cont: " + String(cont));
       cont = 2;
     } 
-   
+    
     else if(cont == 2 && !ackMonitoring && timerbloqueante.alreadyGoal(2000)){
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, false, true);
       Serial.println("Enviando MONITORING (Tentativa 2) - cont: 2");
@@ -119,6 +128,7 @@ void loop() {
       ackMonitoring = false;
       ackLog = false;
       cont = 1;
+      contCiclos++;
     }
 }
 
