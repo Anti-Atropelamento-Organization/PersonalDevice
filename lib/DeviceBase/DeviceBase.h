@@ -86,6 +86,25 @@ public:
 
     uint16_t getMyRandomLogID();
 
+    uint8_t calculateAlertDistance();
+
+    //#####################################
+    //FUNÇÕES DE MONITORAMENTO DE EVENTOS 
+    //#####################################
+
+    void addEvent(uint8_t event);
+
+    uint8_t monitoringDistanceEvent(uint8_t proxidade);
+
+    bool monitoringBaterryEvent();
+
+    bool monitoringHdopEvent();
+
+    bool monitoringSatEvent();
+
+    bool monitoringGPSEvent();
+
+
 protected:
 
     virtual void buildSafetyPacket() = 0;
