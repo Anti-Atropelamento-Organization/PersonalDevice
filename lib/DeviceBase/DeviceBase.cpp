@@ -202,3 +202,41 @@ void DeviceBase::cleanEvents()
  memset(last5events, 0, sizeof(last5events));
 
 }
+
+double DeviceBase::minDistanceFromVehicle() {
+  double minDistanceVehicle = 1000000.0;
+  for (int i = 0; i < MAX_VEHICLES; i++) {
+    if (nearbyVehicles[i].id != 0 && nearbyVehicles[i].distance < minDistanceVehicle) {
+      minDistanceVehicle = nearbyVehicles[i].distance;
+    }
+  }
+  return minDistanceVehicle;
+};
+
+uint8_t DeviceBase::calculateAlertDistance(){
+  double minDistance = minDistanceFromVehicle();
+  if (minDistance < getRadius(1) - getRadius(0)) {
+    return 1;
+  } else if (minDistance < getRadius(2) - getRadius(1)) {
+    return 2;
+  } else if (minDistance < 30.0) {
+    return 3;
+  } else {
+    return 0;
+  }
+}
+
+uint8_t DeviceBase::monitoringDistanceEvent(){
+   uint8_t actualDistance = calculateAlertDistance();
+   if(lastDistanceAlert != actualDistance && actualDistance == 1){
+    lastDistanceAlert = 1;
+    return 1;
+   }else if(lastDistanceAlert != actualDistance && actualDistance == 2){
+    lastDistanceAlert = 2;
+    return 2;
+   }else if(lastDistanceAlert != actualDistance && actualDistance == 3){
+    lastDistanceAlert = 3;
+    return 3;
+   }else return 0;
+}
+

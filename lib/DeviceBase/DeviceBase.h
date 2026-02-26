@@ -94,7 +94,7 @@ public:
 
     void addEvent(uint8_t event);
 
-    uint8_t monitoringDistanceEvent(uint8_t proxidade);
+    uint8_t monitoringDistanceEvent();
 
     bool monitoringBaterryEvent();
 
@@ -103,6 +103,8 @@ public:
     bool monitoringSatEvent();
 
     bool monitoringGPSEvent();
+
+    double minDistanceFromVehicle();
 
 
 protected:
@@ -147,6 +149,10 @@ protected:
 
     uint16_t monitoringRandomID;
     uint16_t LogRandomID;
+
+    float minDistance = 100.0f;
+
+    uint8_t lastDistanceAlert;
 };
 
 #endif
