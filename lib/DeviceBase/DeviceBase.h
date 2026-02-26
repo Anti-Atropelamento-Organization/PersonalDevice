@@ -19,6 +19,7 @@
 #define LOW_HDOP_EVENT 5
 #define LOW_SATTELITES_EVENT 6
 #define NO_GPS_EVENT 7
+
 class DeviceBase {
 public:
     DeviceBase();
