@@ -18,8 +18,8 @@ PersonalDevice personal;
 mainFunctions MF;
 
 
-SimpleTimer st_safety(60000);
-SimpleTimer st_monitoring(10000);
+SimpleTimer st_safety(5000);
+SimpleTimer st_monitoring(180000);
 SimpleTimer alertTimer(3000);
 SimpleTimer timerbloqueante(10000); 
 SimpleTimer teste(1000);
@@ -56,11 +56,7 @@ void setup() {
   randomSeed((uint32_t)esp_random() ^ (uint32_t)micros());
 }
 
-
-
 void loop() {
-
-  
 
   MF.SetPersonalConst(personal);
   MF.ReceivePacketDevice(personal, st_safety, jitterTargetTimeSafety, waitingToSend, hasTarget, ackMonitoring, ackLog);
@@ -132,15 +128,17 @@ void loop() {
     }
 }
 
-/*   if(teste.isReady()){
+  if (alertTimer.isReady()) {
+    MF.ActiveAlert(personal);
+    alertTimer.reset();
+  }
+
+  MF.MonitoringEvent(personal);
+
+  personal.cleanOldVehicles();
+
+  /*if(teste.isReady()){
     Serial.println("Sats: " + String(personal.getSatValue()));
     teste.reset();
   } */
-
-    /* if (alertTimer.isReady()) {
-    MF.ActiveAlert(personal);
-    alertTimer.reset();
-  } */
-
-  personal.cleanOldVehicles();
 }

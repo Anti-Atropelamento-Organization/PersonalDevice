@@ -129,7 +129,7 @@ void mainFunctions::SendTime(PersonalDevice& personal, SimpleTimer& st, bool& ha
     else if (level == 3) st.setInterval(20000);
     st.reset();
     lastLevel = level;
-    //Serial.println("Level: " + String(lastLevel));
+    Serial.println("Level: " + String(lastLevel));
   }
 }
 
