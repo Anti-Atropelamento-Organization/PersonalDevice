@@ -293,14 +293,16 @@ double DeviceBase::minDistanceFromVehicle() {
 
 uint8_t DeviceBase::calculateAlertDistance(){
   double minDistance = minDistanceFromVehicle();
-  if (minDistance < getRadius(1) - getRadius(0)) {
-    return 1;
-  } else if (minDistance < getRadius(2) - getRadius(1)) {
-    return 2;
-  } else if (minDistance < 30.0) {
-    return 3;
-  } else {
-    return 0;
+  if(minDistance != 0){
+    if (minDistance <= getRadius(1) - getRadius(0)) {
+        return 1;
+    } else if (minDistance <= getRadius(2) - getRadius(1)) {
+        return 2;
+    } else if (minDistance <= 30.0 && minDistance > getRadius(2) - getRadius(1)) {
+        return 3;
+    } else {
+        return 0;
+    }
   }
 }
 

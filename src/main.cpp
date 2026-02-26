@@ -25,7 +25,6 @@ SimpleTimer timerbloqueante(10000);
 SimpleTimer teste(1000);
 
 uint8_t cont = 1;
-uint8_t contCiclos = 1;
 
 bool timerAck = false;
 
@@ -60,7 +59,7 @@ void loop() {
 
   MF.SetPersonalConst(personal);
   MF.ReceivePacketDevice(personal, st_safety, jitterTargetTimeSafety, waitingToSend, hasTarget, ackMonitoring, ackLog);
-  MF.SendTime(personal, st_monitoring, hasTarget, level, lastLevel);
+  MF.SendTime(personal, st_safety, hasTarget, level, lastLevel);
 
   if(st_safety.isReady()){
     MF.SendPacketSafety(personal, st_safety, jitterTargetTimeSafety);
@@ -78,11 +77,10 @@ void loop() {
       ackMonitoring = false;
       ackLog = false;
       cont = 1;
-      contCiclos++;
+
     }
 
     else if(cont == 1 && !timerAck && !ackMonitoring){
-      Serial.println("CICLOS: " + String(contCiclos));
       MF.SendPacketLog(personal, st_monitoring, jitterTargetTimeMonitoring, false, true); 
       timerAck = true;
       timerbloqueante.reset();
@@ -124,7 +122,7 @@ void loop() {
       ackMonitoring = false;
       ackLog = false;
       cont = 1;
-      contCiclos++;
+    
     }
 }
 
@@ -136,6 +134,16 @@ void loop() {
   MF.MonitoringEvent(personal);
 
   personal.cleanOldVehicles();
+
+  if(teste.isReady()){
+    Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
+    Serial.println("minDistance: " + String(personal.minDistanceFromVehicle()));
+    Serial.println("Raio 1: " + String(personal.getRadius(1) - personal.getRadius(0)));
+    Serial.println("Raio 2: " + String(personal.getRadius(2) - personal.getRadius(1)));
+    Serial.println();
+    teste.reset();
+  }
+  
 
   /*if(teste.isReady()){
     Serial.println("Sats: " + String(personal.getSatValue()));

@@ -21,6 +21,9 @@ public:
     void ProcessData(PersonalDevice& personal, uint8_t id, double srcLat, double srcLng);
     void ActiveAlert(PersonalDevice& personal);
     void MonitoringEvent(PersonalDevice& personal);
+
+private:
+    uint8_t bateriaTeste = 100;
 };
 
 #endif
