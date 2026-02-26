@@ -90,6 +90,7 @@ public:
     uint16_t getMyRandomLogID();
 
     uint8_t calculateAlertDistance();
+    double minDistanceFromVehicle();
 
     //#####################################
     //FUNÇÕES DE MONITORAMENTO DE EVENTOS 
@@ -97,7 +98,7 @@ public:
 
     void addEvent(uint8_t event);
 
-    uint8_t monitoringDistanceEvent(uint8_t proxidade);
+    uint8_t monitoringDistanceEvent();
 
     bool monitoringBatteryEvent();
 
@@ -127,7 +128,7 @@ protected:
     uint8_t status = 0;
     uint8_t deviceType = 0; 
     int32_t last5positions[5][2];
-    uint8_t last5events[10];
+    uint8_t last5events[5];
     uint8_t satelites = 0;
 
     uint8_t safetyPacket[SAFETY_PACKET_SIZE];
@@ -153,6 +154,9 @@ protected:
     
     int EventIndex = 0;
     bool lastLocationIsValid = false;
+    
+    // Variáveis para rastrear eventos anteriores
+    uint8_t lastDistanceAlert = 0;
 
 };
 

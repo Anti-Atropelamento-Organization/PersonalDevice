@@ -18,7 +18,7 @@ public:
 
     void updateVehicleList(uint8_t id, double dist);
     void cleanOldVehicles();
-    double minDistanceFromVehicle();
+    
 
 protected:
     void buildSafetyPacket() override;
@@ -27,7 +27,7 @@ protected:
     void onReceiveDecoded() override;
 
 private:
-    float minDistance = 100.0f;
+    
     uint32_t lastMinResetMs = 0;
 };
 

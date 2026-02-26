@@ -76,12 +76,3 @@ void PersonalDevice::cleanOldVehicles() {
     }
 }
 
-double PersonalDevice::minDistanceFromVehicle() {
-  double minDistanceVehicle = 1000000.0;
-  for (int i = 0; i < MAX_VEHICLES; i++) {
-    if (nearbyVehicles[i].id != 0 && nearbyVehicles[i].distance < minDistanceVehicle) {
-      minDistanceVehicle = nearbyVehicles[i].distance;
-    }
-  }
-  return minDistanceVehicle;
-};

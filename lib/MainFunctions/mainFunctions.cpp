@@ -129,7 +129,7 @@ void mainFunctions::SendTime(PersonalDevice& personal, SimpleTimer& st, bool& ha
     else if (level == 3) st.setInterval(20000);
     st.reset();
     lastLevel = level;
-    //Serial.println("Level: " + String(lastLevel));
+    Serial.println("Level: " + String(lastLevel));
   }
 }
 
@@ -142,14 +142,26 @@ void mainFunctions::ProcessData(PersonalDevice& personal, uint8_t id, double src
 };
 
 void mainFunctions::ActiveAlert(PersonalDevice& personal) {
-  double minDistance = personal.minDistanceFromVehicle();
-  if (minDistance < personal.getRadius(1) - personal.getRadius(0)) {
+  if (personal.calculateAlertDistance() == 1) {
     Serial.println("ALERTA: Veículo muito próximo!");
-  } else if (minDistance < personal.getRadius(2) - personal.getRadius(1)) {
+  } else if (personal.calculateAlertDistance() == 2) {
     Serial.println("ALERTA: Veículo próximo!");
-  } else if (minDistance < 30.0) {
+  } else if (personal.calculateAlertDistance() == 3) {
     Serial.println("ALERTA: Veículo na área!");
   } else {
     Serial.println("Nenhum veículo próximo.");
   }
-}
+};
+
+void mainFunctions::MonitoringEvent(PersonalDevice& personal){
+  if(personal.calculateAlertDistance() != 0){
+    if(personal.monitoringDistanceEvent() == 1) personal.addEvent(1);
+    else if (personal.monitoringDistanceEvent() == 2) personal.addEvent(2);
+    else if (personal.monitoringDistanceEvent() == 3) personal.addEvent(3);
+  }
+
+  if(personal.monitoringBatteryEvent()) personal.addEvent(4);
+  if(personal.monitoringHdopEvent()) personal.addEvent(5);
+  if(personal.monitoringSatEvent()) personal.addEvent(6);
+  if(personal.monitoringGPSEvent()) personal.addEvent(7);
+};
