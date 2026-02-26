@@ -15,7 +15,8 @@ void PersonalDevice::buildMonitoringPacket() {
 
 void PersonalDevice::buildLogPacket() {
   LogRandomID = (uint16_t)random(0, 65536);
-  pckt.logPacket(deviceID, deviceType, LogRandomID, last5positions, last5events, nearbyVehicles, logPacket);
+  
+  pckt.logPacket(deviceID, deviceType, LogRandomID ,last5positions, last5events, nearbyVehicles, logPacket);
 }
 
 void PersonalDevice::onReceiveDecoded() {
