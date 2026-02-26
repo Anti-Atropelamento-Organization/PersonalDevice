@@ -46,7 +46,7 @@ public:
     double getCourse() const;
     void setCourse();
 
-    void setBatteryLevel();
+    void setBatteryLevel(uint8_t level);
     uint8_t getBatteryLevel() const;
 
     void sendSafety();
@@ -100,7 +100,7 @@ public:
 
     uint8_t monitoringDistanceEvent();
 
-    bool monitoringBatteryEvent();
+    bool monitoringBatteryEvent(uint8_t Level);
 
     bool monitoringHdopEvent();
 

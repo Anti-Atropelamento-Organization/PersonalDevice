@@ -165,6 +165,13 @@ void DeviceBase::setRadius(double hdop) {
     }
 }
 
+void DeviceBase::setBatteryLevel(uint8_t level) {
+    batteryLevel = level;
+} 
+uint8_t DeviceBase::getBatteryLevel() const {
+    return batteryLevel;
+}
+
 bool DeviceBase::hasLocation() {
     return gps.location.isValid();
 }
@@ -214,10 +221,10 @@ void DeviceBase::addEvent(uint8_t event) {
 
 }
 
-bool DeviceBase::monitoringBatteryEvent()
+bool DeviceBase::monitoringBatteryEvent(uint8_t Level)
 {
     uint8_t lastBatteryLevel = batteryLevel;
-    setBatteryLevel();
+    setBatteryLevel(Level);
     if(lastBatteryLevel - batteryLevel == 0) {
         return false;
     }
