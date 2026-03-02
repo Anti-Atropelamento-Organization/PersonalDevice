@@ -148,5 +148,5 @@ void loop() {
   /*if(teste.isReady()){
     Serial.println("Sats: " + String(personal.getSatValue()));
     teste.reset();
-  } */
+  } */  
 }
