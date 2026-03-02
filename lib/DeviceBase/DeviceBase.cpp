@@ -84,7 +84,7 @@ bool DeviceBase::receive() {
             return false;
         }
 
-        onReceiveDecoded();
+        //onReceiveDecoded();
         return true;
     }
     return false;
@@ -286,7 +286,7 @@ bool DeviceBase::monitoringGPSEvent()
 double DeviceBase::minDistanceFromVehicle() {
   double minDistanceVehicle = 1000000.0;
   for (int i = 0; i < MAX_VEHICLES; i++) {
-    if (nearbyVehicles[i].id != 0 && nearbyVehicles[i].distance < minDistanceVehicle) {
+    if (nearbyVehicles[i].id != 0 && nearbyVehicles[i].distance < minDistanceVehicle && nearbyVehicles[i].distance > 0.0) {
       minDistanceVehicle = nearbyVehicles[i].distance;
     }
   }
@@ -309,17 +309,18 @@ uint8_t DeviceBase::calculateAlertDistance(){
   return 0;
 }
 
-uint8_t DeviceBase::monitoringDistanceEvent(){
-   uint8_t actualDistance = calculateAlertDistance();
-   if(lastDistanceAlert != actualDistance && actualDistance == 1){
-    lastDistanceAlert = 1;
-    return 1;
-   }else if(lastDistanceAlert != actualDistance && actualDistance == 2){
-    lastDistanceAlert = 2;
-    return 2;
-   }else if(lastDistanceAlert != actualDistance && actualDistance == 3){
-    lastDistanceAlert = 3;
-    return 3;
-   }else return 0;
+uint8_t DeviceBase::monitoringDistanceEvent() {
+    uint8_t actualDistance = calculateAlertDistance();
+
+    if (actualDistance != lastDistanceAlert && actualDistance > 0) {
+        lastDistanceAlert = actualDistance; 
+        return actualDistance;            
+    }
+
+    if (actualDistance == 0) {
+        lastDistanceAlert = 0;
+    }
+
+    return 0;
 }
 

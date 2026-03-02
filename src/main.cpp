@@ -17,9 +17,8 @@
 PersonalDevice personal;
 mainFunctions MF;
 
-
 SimpleTimer st_safety(5000);
-SimpleTimer st_monitoring(30000);
+SimpleTimer st_monitoring(2*MINUTE);
 SimpleTimer alertTimer(3000);
 SimpleTimer timerbloqueante(10000); 
 SimpleTimer teste(1000);
@@ -142,11 +141,8 @@ void loop() {
   personal.cleanOldVehicles();
 
   if(teste.isReady()){
-    //Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
+    Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
     Serial.println("minDistance: " + String(personal.minDistanceFromVehicle()));
-    /* Serial.println("Raio 1: " + String(personal.getRadius(1) - personal.getRadius(0)));
-    Serial.println("Raio 2: " + String(personal.getRadius(2) - personal.getRadius(1)));
-    Serial.println(); */
     Serial.println("Raio 0: " + String(personal.getRadius(0)));
     Serial.println("Raio 1: " + String(personal.getRadius(1)));
     Serial.println("Raio 2: " + String(personal.getRadius(2)));

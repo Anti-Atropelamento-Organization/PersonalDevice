@@ -3,6 +3,10 @@
 
 #include <Arduino.h> 
 
+#define MINUTE 60000
+#define HOUR 3600000
+#define SECOND 1000
+
 class SimpleTimer {
   private:
     unsigned long _lastTime;

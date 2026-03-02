@@ -158,23 +158,20 @@ void mainFunctions::ActiveAlert(PersonalDevice& personal) {
   }
 };
 
-void mainFunctions::MonitoringEvent(PersonalDevice& personal){
+void mainFunctions::MonitoringEvent(PersonalDevice& personal) {
+    
+    uint8_t distEvent = personal.monitoringDistanceEvent();
+    
+    if (distEvent != 0) {
+        personal.addEvent(distEvent); 
+    }
 
+    if (index == 0) {
+        index = 100;
+    }
 
-
-  if(personal.calculateAlertDistance() != 0){
-    if(personal.monitoringDistanceEvent() == 1) personal.addEvent(1);
-    else if (personal.monitoringDistanceEvent() == 2) personal.addEvent(2);
-    else if (personal.monitoringDistanceEvent() == 3) personal.addEvent(3);
-  }
-
-  if(index == 0)
-  {
-    index = 100;
-  }
-
-  if(personal.monitoringBatteryEvent(index)) personal.addEvent(4);
-  if(personal.monitoringHdopEvent()) personal.addEvent(5);
-  if(personal.monitoringSatEvent()) personal.addEvent(6);
-  if(personal.monitoringGPSEvent()) personal.addEvent(7);
-};
+    if (personal.monitoringBatteryEvent(index)) personal.addEvent(4);
+    if (personal.monitoringHdopEvent())         personal.addEvent(5);
+    if (personal.monitoringSatEvent())          personal.addEvent(6);
+    if (personal.monitoringGPSEvent())          personal.addEvent(7);
+}

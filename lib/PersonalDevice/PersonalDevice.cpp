@@ -32,9 +32,9 @@ void PersonalDevice::onReceiveDecoded() {
 
 int PersonalDevice::isValidSend(double minDistance) {
 
-  if (minDistance < 5.0f) {
+  if (minDistance < 15.0f) {
     return 1;
-  } else if (minDistance <= 10.0f) {
+  } else if (minDistance <= 50.0f) {
     return 2;
   } else {  
     return 3;
