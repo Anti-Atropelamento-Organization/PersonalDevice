@@ -72,7 +72,7 @@ void packet::monitoringPacket(uint8_t ID,  uint8_t deviceType, uint16_t randomID
     pkt.lng = mapDoubleToInt32(longitude);
     pkt.batteryLevel = batteryLevel;
     pkt.satellites = satellites;
-    pkt.hdop = mapDoubleToUint8(hdop);
+    pkt.hdop = hdop;
     pkt.status = status;
 
     memcpy(returnPacket, &pkt, sizeof(MonitoringPayload));

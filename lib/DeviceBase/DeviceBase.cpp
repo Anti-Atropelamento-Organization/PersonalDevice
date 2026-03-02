@@ -11,7 +11,7 @@ DeviceBase::DeviceBase() {
 void DeviceBase::setup() {
     lora.begin();
     lora.SpreadingFactor(9);
-    lora.receiveData(receivedPacket, 0, 0);
+    // lora.receiveData(receivedPacket, 0, 0);
 }
 
 void DeviceBase::alimentandoGPS() {
@@ -166,7 +166,8 @@ void DeviceBase::setRadius(double hdop) {
 }
 
 void DeviceBase::setBatteryLevel(uint8_t level) {
-    batteryLevel = level;
+    // batteryLevel = level;
+    batteryLevel = PMU->getBatteryPercent();
 } 
 uint8_t DeviceBase::getBatteryLevel() const {
     return batteryLevel;
@@ -206,10 +207,21 @@ uint16_t DeviceBase::getMyRandomMonitoringID(){
 
 void DeviceBase::cleanEvents()
 {
+ Serial.println("[DeviceBase] antes: ");
+ for(int i = 0; i < 5; i++) {
+    Serial.print(String(last5events[i]) + " ");
+ }
  memset(last5events, 0, sizeof(last5events));
+
+    Serial.println("\n[DeviceBase] depois: ");
+    for(int i = 0; i < 5; i++) {
+        Serial.print(String(last5events[i]) + " ");
+    }
+ EventIndex = 0;
 
 }
 void DeviceBase::addEvent(uint8_t event) {
+    Serial.println("Evento adicionado: " + String(event));
     if(EventIndex < 5) {
         last5events[EventIndex] = event;
         EventIndex++;
@@ -225,14 +237,9 @@ bool DeviceBase::monitoringBatteryEvent(uint8_t Level)
 {
     uint8_t lastBatteryLevel = batteryLevel;
     setBatteryLevel(Level);
-    if(lastBatteryLevel - batteryLevel == 0) {
-        return false;
-    }
-    else if(batteryLevel <= 20) {
-        return true;
-    }
-    lastBatteryLevel = batteryLevel;
-    return false;
+
+    // O degrau: o nível anterior era bom, e o atual ficou ruim
+    return (lastBatteryLevel > 20 && batteryLevel <= 20);
 }
 
 bool DeviceBase::monitoringHdopEvent()
@@ -251,14 +258,9 @@ bool DeviceBase::monitoringSatEvent()
 {
     uint8_t lastSat = satelites;
     setSatValue();
-    if(lastSat - satelites == 0) {
-        return false;
-    }
-    else if(satelites <= 6) {
-        return true;
-    }
-    lastSat = satelites;
-    return false;
+
+    // O degrau acontece apenas quando o sinal cruza o limite de 6 para baixo
+    return (lastSat > 6 && satelites <= 6);
 }
 
 bool DeviceBase::monitoringGPSEvent()
@@ -304,6 +306,7 @@ uint8_t DeviceBase::calculateAlertDistance(){
         return 0;
     }
   }
+  return 0;
 }
 
 uint8_t DeviceBase::monitoringDistanceEvent(){

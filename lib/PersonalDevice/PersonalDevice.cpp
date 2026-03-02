@@ -15,7 +15,8 @@ void PersonalDevice::buildMonitoringPacket() {
 
 void PersonalDevice::buildLogPacket() {
   LogRandomID = (uint16_t)random(0, 65536);
-  
+  Serial.println("Battery Level in buildLogPacket: " + String(batteryLevel));
+  Serial.println("Hdop in buildLogPacket: " + String(deviceHdop));
   pckt.logPacket(deviceID, deviceType, LogRandomID ,last5positions, last5events, nearbyVehicles, logPacket);
 }
 
@@ -74,5 +75,22 @@ void PersonalDevice::cleanOldVehicles() {
             nearbyVehicles[i].lastSeenMs = 0;
         }
     }
+}
+void PersonalDevice::saveLastPosition() {
+  static int index_lat = 0;
+  static int index_lng = 0;
+  if(index_lat >= 5)
+  {
+    for(int i = 0; i < 4; i++) {
+      last5positions[i][0] = last5positions[i + 1][0];
+      last5positions[i][1] = last5positions[i + 1][1];
+    }
+    index_lat = 4;
+    index_lng = 4;
+  }
+  last5positions[index_lat][0] = (int32_t)(deviceLatitude * 10000000);
+  last5positions[index_lng][1] = (int32_t)(deviceLongitude * 10000000);
+  index_lat += 1;
+  index_lng += 1;
 }
 

@@ -42,17 +42,19 @@ uint16_t randomMonitoring = 0;
 uint16_t randomLog = 0;
 
 void setup() {
-
+  
   Serial.begin(115200);
   delay(200);
 
   setupBoards();
   delay(300);
 
+
   personal.setID(12);
   personal.setup();
 
   randomSeed((uint32_t)esp_random() ^ (uint32_t)micros());
+  PMU->init();
 }
 
 void loop() {
@@ -135,16 +137,23 @@ void loop() {
 
   personal.cleanOldVehicles();
 
-  if(teste.isReady()){
-    Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
-    Serial.println("minDistance: " + String(personal.minDistanceFromVehicle()));
-    Serial.println("Raio 1: " + String(personal.getRadius(1) - personal.getRadius(0)));
-    Serial.println("Raio 2: " + String(personal.getRadius(2) - personal.getRadius(1)));
-    Serial.println();
-    teste.reset();
-  }
+  // if(teste.isReady()){
+  //   Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
+  //   Serial.println("minDistance: " + String(personal.minDistanceFromVehicle()));
+  //   Serial.println("Raio 1: " + String(personal.getRadius(1) - personal.getRadius(0)));
+  //   Serial.println("Raio 2: " + String(personal.getRadius(2) - personal.getRadius(1)));
+  //   Serial.println();
+  //   teste.reset();
+  // }
   
 
+  // if(teste.isReady()){
+  //   personal.setSatValue();
+  //   Serial.println("Sats: " + String(personal.getSatValue()));
+  //   teste.reset();
+  //   Serial.println("Tensão da bateria: " + String(PMU->getBattVoltage()));
+  //   Serial.println("Porcentagem da bateria: " + String(PMU->getBatteryPercent()));
+  // }
   /*if(teste.isReady()){
     Serial.println("Sats: " + String(personal.getSatValue()));
     teste.reset();

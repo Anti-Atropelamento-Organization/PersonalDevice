@@ -24,6 +24,8 @@ public:
 
 private:
     uint8_t bateriaTeste = 100;
+    int index = 100;
+    SimpleTimer savePosTimer = SimpleTimer(30000); // Timer para salvar a posição a cada 60 segundos
 };
 
 #endif

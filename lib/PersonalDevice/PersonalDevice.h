@@ -18,6 +18,7 @@ public:
 
     void updateVehicleList(uint8_t id, double dist);
     void cleanOldVehicles();
+    void saveLastPosition();
     
 
 protected:
