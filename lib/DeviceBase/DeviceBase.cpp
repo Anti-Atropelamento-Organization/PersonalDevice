@@ -84,7 +84,7 @@ bool DeviceBase::receive() {
             return false;
         }
 
-        //onReceiveDecoded();
+        onReceiveDecoded();
         return true;
     }
     return false;
@@ -157,9 +157,9 @@ void DeviceBase::setRadius(double hdop) {
             if (i == 0) {
                 deviceRadius[i] = hdop * 1.5;
             } else if (i == 1) {
-                deviceRadius[i] = (hdop * 1.5) + 1.0;
+                deviceRadius[i] = (hdop * 1.5) + 10.0;
             } else if (i == 2) {
-                deviceRadius[i] = (hdop * 1.5) + 2.0;
+                deviceRadius[i] = (hdop * 1.5) + 50.0;
             }
         }
     }
@@ -296,11 +296,11 @@ double DeviceBase::minDistanceFromVehicle() {
 uint8_t DeviceBase::calculateAlertDistance(){
   double minDistance = minDistanceFromVehicle();
   if(minDistance != 0){
-    if (minDistance <= getRadius(1) - getRadius(0)) {
+    if (minDistance <= getRadius(1)) {
         return 1;
-    } else if (minDistance <= getRadius(2) - getRadius(1)) {
+    } else if (minDistance <= getRadius(2)) {
         return 2;
-    } else if (minDistance <= 30.0 && minDistance > getRadius(2) - getRadius(1)) {
+    } else if (minDistance <= 70.0) {
         return 3;
     } else {
         return 0;

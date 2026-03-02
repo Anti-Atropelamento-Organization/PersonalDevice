@@ -59,7 +59,7 @@ void mainFunctions::SendPacketSafety(DeviceBase& device, SimpleTimer& st_safety,
       // Executa o envio baseado no timer que disparou
       if(device.isChannelBusy(SAFETY_CHANNEL)) {
           Serial.println("Canal de segurança ocupado no momento do envio. Reagendando...");
-          jitterTargetTime = now + random(100, 1000); 
+          jitterTargetTime = now + random(100, 1000);
           return;
       }
       device.sendSafety();

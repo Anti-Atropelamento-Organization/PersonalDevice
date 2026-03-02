@@ -15,8 +15,8 @@ void PersonalDevice::buildMonitoringPacket() {
 
 void PersonalDevice::buildLogPacket() {
   LogRandomID = (uint16_t)random(0, 65536);
-  Serial.println("Battery Level in buildLogPacket: " + String(batteryLevel));
-  Serial.println("Hdop in buildLogPacket: " + String(deviceHdop));
+  /* Serial.println("Battery Level in buildLogPacket: " + String(batteryLevel));
+  Serial.println("Hdop in buildLogPacket: " + String(deviceHdop)); */
   pckt.logPacket(deviceID, deviceType, LogRandomID ,last5positions, last5events, nearbyVehicles, logPacket);
 }
 

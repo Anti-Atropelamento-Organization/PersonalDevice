@@ -19,10 +19,11 @@ mainFunctions MF;
 
 
 SimpleTimer st_safety(5000);
-SimpleTimer st_monitoring(180000);
+SimpleTimer st_monitoring(30000);
 SimpleTimer alertTimer(3000);
 SimpleTimer timerbloqueante(10000); 
 SimpleTimer teste(1000);
+SimpleTimer teste2(3000);
 
 uint8_t cont = 1;
 
@@ -37,6 +38,8 @@ static int lastLevel = -1;
 
 bool ackMonitoring = false;
 bool ackLog = false;
+
+bool blockMonitoring = false;
 
 uint16_t randomMonitoring = 0;
 uint16_t randomLog = 0;
@@ -63,7 +66,7 @@ void loop() {
   MF.ReceivePacketDevice(personal, st_safety, jitterTargetTimeSafety, waitingToSend, hasTarget, ackMonitoring, ackLog);
   MF.SendTime(personal, st_safety, hasTarget, level, lastLevel);
 
-  if(st_safety.isReady()){
+  if(st_safety.isReady() && !blockMonitoring){
     MF.SendPacketSafety(personal, st_safety, jitterTargetTimeSafety);
   }
 
@@ -79,7 +82,7 @@ void loop() {
       ackMonitoring = false;
       ackLog = false;
       cont = 1;
-
+      blockMonitoring = false;
     }
 
     else if(cont == 1 && !timerAck && !ackMonitoring){
@@ -87,6 +90,7 @@ void loop() {
       timerAck = true;
       timerbloqueante.reset();
       Serial.println("Enviando MONITORING (Tentativa 1) - cont: " + String(cont));
+      blockMonitoring = true;
       cont = 2;
     } 
     
@@ -124,7 +128,7 @@ void loop() {
       ackMonitoring = false;
       ackLog = false;
       cont = 1;
-    
+      blockMonitoring = false;
     }
 }
 
@@ -137,14 +141,17 @@ void loop() {
 
   personal.cleanOldVehicles();
 
-  // if(teste.isReady()){
-  //   Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
-  //   Serial.println("minDistance: " + String(personal.minDistanceFromVehicle()));
-  //   Serial.println("Raio 1: " + String(personal.getRadius(1) - personal.getRadius(0)));
-  //   Serial.println("Raio 2: " + String(personal.getRadius(2) - personal.getRadius(1)));
-  //   Serial.println();
-  //   teste.reset();
-  // }
+  if(teste.isReady()){
+    //Serial.println("INFOS RAIOS E DISTANCIA MINIMA");
+    Serial.println("minDistance: " + String(personal.minDistanceFromVehicle()));
+    /* Serial.println("Raio 1: " + String(personal.getRadius(1) - personal.getRadius(0)));
+    Serial.println("Raio 2: " + String(personal.getRadius(2) - personal.getRadius(1)));
+    Serial.println(); */
+    Serial.println("Raio 0: " + String(personal.getRadius(0)));
+    Serial.println("Raio 1: " + String(personal.getRadius(1)));
+    Serial.println("Raio 2: " + String(personal.getRadius(2)));
+    teste.reset();
+  }
   
 
   // if(teste.isReady()){
@@ -154,8 +161,8 @@ void loop() {
   //   Serial.println("Tensão da bateria: " + String(PMU->getBattVoltage()));
   //   Serial.println("Porcentagem da bateria: " + String(PMU->getBatteryPercent()));
   // }
-  /*if(teste.isReady()){
+  if(teste2.isReady()){
     Serial.println("Sats: " + String(personal.getSatValue()));
-    teste.reset();
-  } */  
+    teste2.reset();
+  }  
 }
