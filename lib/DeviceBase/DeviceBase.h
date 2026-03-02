@@ -10,6 +10,16 @@
 #define MONITORING_CHANNEL 1
 #define SAFETY_CHANNEL 2
 
+#define T_BEAM_TX_GPS 8
+#define T_BEAM_RX_GPS 9
+#define T_BEAM_CTRL_GPS 7
+#define T_BEAM_PPS_GPS 6
+
+#define HELTEC_TX_GPS 33
+#define HELTEC_RX_GPS 34
+#define HELTEC_CTRL_GPS 35
+#define HELTEC_PPS_GPS 36 
+
 // ################# EVENTS #################
 
 #define VEHICLE_TOO_CLOSE_EVENT 1

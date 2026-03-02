@@ -71,7 +71,7 @@ struct __attribute__((packed)) MonitoringPayload {
     uint8_t batteryLevel;
     uint8_t status;
     uint8_t satellites;
-    uint8_t hdop;
+    double hdop;
 };
 
 // !!! ADICIONE ISSO AQUI !!!

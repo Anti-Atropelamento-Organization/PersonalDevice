@@ -39,7 +39,7 @@ void mainFunctions::ReceivePacketDevice(DeviceBase& device, SimpleTimer& st, uns
       if (receivedAckID == device.getMyRandomLogID()) {
           ackLog = true;
           Serial.println("ACK LOG");
-          device.cleanEvents();
+           device.cleanEvents();
       }
     }
   }
@@ -102,6 +102,11 @@ void mainFunctions::SetPersonalConst(PersonalDevice& personal) {
     personal.setLatitude();
     personal.setLongitude();
     personal.setRadius(personal.getHdop());
+
+  }
+  if(savePosTimer.isReady()){
+    personal.saveLastPosition();
+    savePosTimer.reset();
   }
 }
 
@@ -163,9 +168,12 @@ void mainFunctions::MonitoringEvent(PersonalDevice& personal){
     else if (personal.monitoringDistanceEvent() == 3) personal.addEvent(3);
   }
 
+  if(index == 0)
+  {
+    index = 100;
+  }
 
-
-  if(personal.monitoringBatteryEvent(40)) personal.addEvent(4);
+  if(personal.monitoringBatteryEvent(index)) personal.addEvent(4);
   if(personal.monitoringHdopEvent()) personal.addEvent(5);
   if(personal.monitoringSatEvent()) personal.addEvent(6);
   if(personal.monitoringGPSEvent()) personal.addEvent(7);
