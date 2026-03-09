@@ -7,22 +7,24 @@
 #include "LoRaBoards.h"
 #include <TinyGPS++.h>
 
-#define MONITORING_CHANNEL 1
-#define SAFETY_CHANNEL 2
+#define MONITORING_CHANNEL 1 //canal de pacotes de monitoramento e log
+#define SAFETY_CHANNEL 2 //canal de pacotes safety
 
-#define T_BEAM_TX_GPS 8
-#define T_BEAM_RX_GPS 9
-#define T_BEAM_CTRL_GPS 7
+#define T_BEAM_TX_GPS 8 // pino TX para o GPS do T-Beam
+#define T_BEAM_RX_GPS 9 // pino RX para o GPS do T-Beam
+#define T_BEAM_CTRL_GPS 7 
 #define T_BEAM_PPS_GPS 6
 
-#define HELTEC_TX_GPS 33
-#define HELTEC_RX_GPS 34
+#define HELTEC_TX_GPS 33 // pino TX para o GPS do Heltec
+#define HELTEC_RX_GPS 34 // pino RX para o GPS do Heltec
 #define HELTEC_CTRL_GPS 35
 #define HELTEC_PPS_GPS 36 
 
 // ################# EVENTS #################
 
-#define VEHICLE_TOO_CLOSE_EVENT 1
+
+// Defines para os eventos do pacote LOG, assim, enviamos inteiros ao invés de strings
+#define VEHICLE_TOO_CLOSE_EVENT 1 
 #define VEHICLE_CLOSE_EVENT 2
 #define VEHICLE_AREA_EVENT 3
 #define LOW_BATTERY_EVENT 4
@@ -32,9 +34,18 @@
 
 class DeviceBase {
 public:
+
+    // Explicação detalhada dos métodos no arquivo cpp
+
+    //#####################################
+    //CONSTRUTOR 
+    //#####################################
     DeviceBase();
     virtual ~DeviceBase() {}
 
+    //#####################################
+    //MÉTODOS LORA E GPS
+    //#####################################
     virtual void setup();
 
     void alimentandoGPS();
@@ -102,10 +113,10 @@ public:
     uint8_t calculateAlertDistance();
     double minDistanceFromVehicle();
 
+    
     //#####################################
-    //FUNÇÕES DE MONITORAMENTO DE EVENTOS 
+    //MÉTODOS PARA EVENTOS DO PACOTE LOG
     //#####################################
-
     void addEvent(uint8_t event);
 
     uint8_t monitoringDistanceEvent();
@@ -121,13 +132,13 @@ public:
 
 protected:
 
-    virtual void buildSafetyPacket() = 0;
-    virtual void buildMonitoringPacket() = 0;
-    virtual void buildLogPacket() {};
+    virtual void buildSafetyPacket() = 0; // método que contrói o pacote safety
+    virtual void buildMonitoringPacket() = 0; // método que contrói o pacote monitoring
+    virtual void buildLogPacket() {}; // método que contrói o pacote LOG
 
-    virtual void onReceiveDecoded() {}
-    virtual uint8_t safetySF() const { return 7; }
-    virtual uint8_t monitoringSF() const { return 9; }
+    virtual void onReceiveDecoded() {} // método que printa as variáveis de um pacote recebido
+    virtual uint8_t safetySF() const { return 7; } // define o speed factor do safety
+    virtual uint8_t monitoringSF() const { return 9; } // define o speed factor do monitoring e log
 
 protected:
     uint8_t deviceID = 0;
